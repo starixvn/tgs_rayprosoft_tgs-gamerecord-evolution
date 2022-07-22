@@ -15,7 +15,8 @@ namespace Tgs.GameRecord.JiliService.Controllers
             GameRecordQueryViewModel model)
             => service.ExecuteAsync(new EvolutionWorkerCommand(
                 GameApiUrl: model.GameApiUrl,
-                Authorization: model.Authorization,
+                CasinoId: model.CasinoId,
+                GameHistoryApiToken: model.GameHistoryApiToken,
                 StartTime: model.StartTime,
                 EndTime: model.EndTime));
     }

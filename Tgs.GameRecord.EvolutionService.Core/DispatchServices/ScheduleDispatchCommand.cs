@@ -2,5 +2,6 @@
 {
     public record ScheduleDispatchCommand(
         Uri GameApiUrl,
-        string Authorization);
+        string CasinoId,
+        string GameHistoryApiToken);
 }

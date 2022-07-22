@@ -22,7 +22,8 @@ namespace Tgs.GameRecord.EvolutionService
 
             var gameRecordCommand = new EvolutionWorkerCommand(
                 GameApiUrl: request.GameApiUrl,
-                Authorization: request.Authorization,
+                CasinoId: request.CasinoId,
+                GameHistoryApiToken: request.GameHistoryApiToken,
                 StartTime: request.StartTime,
                 EndTime: request.EndTime);
 

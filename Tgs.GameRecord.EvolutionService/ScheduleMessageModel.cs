@@ -2,5 +2,6 @@
 {
     public record ScheduleMessageModel(
         Uri GameApiUrl,
-        string Authorization);
+        string CasinoId,
+        string GameHistoryApiToken);
 }

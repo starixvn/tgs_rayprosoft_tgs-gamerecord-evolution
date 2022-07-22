@@ -23,7 +23,7 @@ namespace Tgs.GameRecord.EvolutionService.Core.DispatchServices
 
         public async ValueTask ExecuteAsync(ScheduleDispatchCommand command, CancellationToken cancellationToken = default)
         {
-            var key = $"GameRecord:EvolutionService:{_gameRecordInfoOptions.GameProviderCode}:{command.Authorization}".ToLower();
+            var key = $"GameRecord:EvolutionService:{_gameRecordInfoOptions.GameProviderCode}:{command.CasinoId}".ToLower();
             if (!await _scheduleDispatch.ExistAsync(key: key).ConfigureAwait(false))
             {
                 if (await _scheduleDispatch.LockingAsync(key: key, command: command).ConfigureAwait(false))
@@ -35,7 +35,8 @@ namespace Tgs.GameRecord.EvolutionService.Core.DispatchServices
 
                         await _commandService.ExecuteAsync(new EvolutionWorkerCommand(
                              GameApiUrl: command.GameApiUrl,
-                             Authorization: command.Authorization,
+                             CasinoId: command.CasinoId,
+                             GameHistoryApiToken: command.GameHistoryApiToken,
                              StartTime: startTime,
                              EndTime: endTime), cancellationToken: cancellationToken).ConfigureAwait(false);
                     }

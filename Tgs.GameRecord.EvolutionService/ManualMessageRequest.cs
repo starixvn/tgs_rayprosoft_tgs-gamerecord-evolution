@@ -2,7 +2,8 @@
 {
     public record ManualMessageRequest(
         Uri GameApiUrl,
-        string Authorization,
+        string CasinoId,
+        string GameHistoryApiToken,
         DateTimeOffset StartTime,
         DateTimeOffset EndTime);
 }

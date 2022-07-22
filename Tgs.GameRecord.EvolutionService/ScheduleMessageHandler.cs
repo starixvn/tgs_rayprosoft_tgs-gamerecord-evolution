@@ -35,7 +35,8 @@ namespace Tgs.GameRecord.EvolutionService
 
             return _service.ExecuteAsync(new ScheduleDispatchCommand(
                 GameApiUrl: messageModel.GameApiUrl,
-                Authorization: messageModel.Authorization), cancellationToken);
+                CasinoId: messageModel.CasinoId,
+                GameHistoryApiToken: messageModel.GameHistoryApiToken), cancellationToken);
         }
     }
 }

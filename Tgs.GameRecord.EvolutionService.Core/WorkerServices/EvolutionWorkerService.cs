@@ -34,7 +34,8 @@ namespace Tgs.GameRecord.EvolutionService.Core.WorkerServices
 
             var gameHistoriesReply = await _client.GetGameHistoriesAsync(
                apiUrl: command.GameApiUrl,
-               authorization: command.Authorization,
+               casinoId: command.CasinoId,
+               gameHistoryApiToken: command.GameHistoryApiToken,
                startDate: command.StartTime,
                endDate: command.EndTime,
                cancellationToken: cancellationToken).ConfigureAwait(false);
