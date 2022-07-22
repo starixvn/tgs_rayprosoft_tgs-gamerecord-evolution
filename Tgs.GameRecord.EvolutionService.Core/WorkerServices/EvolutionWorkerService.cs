@@ -37,12 +37,6 @@ namespace Tgs.GameRecord.EvolutionService.Core.WorkerServices
                authorization: command.Authorization,
                startDate: command.StartTime,
                endDate: command.EndTime,
-               gameType: null,
-               channel: null,
-               gameProvider: null,
-               transactionId: null,
-               owTransactionId: null,
-               rounding: null,
                cancellationToken: cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation("LogOn:{logOn} | Request:{request} | Response:{response}",
