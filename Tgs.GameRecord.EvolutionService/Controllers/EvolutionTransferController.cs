@@ -17,7 +17,7 @@ namespace Tgs.GameRecord.JiliService.Controllers
                 GameApiUrl: model.GameApiUrl,
                 CasinoId: model.CasinoId,
                 GameHistoryApiToken: model.GameHistoryApiToken,
-                StartTime: model.StartTime,
-                EndTime: model.EndTime));
+                StartDate: model.StartDate,
+                EndDate: model.EndDate));
     }
 }

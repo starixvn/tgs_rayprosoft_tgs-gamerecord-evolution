@@ -30,15 +30,15 @@ namespace Tgs.GameRecord.EvolutionService.Core.DispatchServices
                 {
                     try
                     {
-                        var endTime = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\THH:mm:00K"), @"yyyy-MM-dd\THH:mm:ssK", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
-                        var startTime = endTime.AddMinutes((double)_gameRecordInfoOptions.IntervalMinute * -1);
+                        var endDate = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\THH:mm:00K"), @"yyyy-MM-dd\THH:mm:ssK", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
+                        var startDate = endDate.AddMinutes((double)_gameRecordInfoOptions.IntervalMinute * -1);
 
                         await _commandService.ExecuteAsync(new EvolutionWorkerCommand(
                              GameApiUrl: command.GameApiUrl,
                              CasinoId: command.CasinoId,
                              GameHistoryApiToken: command.GameHistoryApiToken,
-                             StartTime: startTime,
-                             EndTime: endTime), cancellationToken: cancellationToken).ConfigureAwait(false);
+                             StartDate: startDate,
+                             EndDate: endDate), cancellationToken: cancellationToken).ConfigureAwait(false);
                     }
                     finally
                     {

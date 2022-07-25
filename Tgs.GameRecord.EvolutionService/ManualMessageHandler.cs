@@ -24,8 +24,8 @@ namespace Tgs.GameRecord.EvolutionService
                 GameApiUrl: request.GameApiUrl,
                 CasinoId: request.CasinoId,
                 GameHistoryApiToken: request.GameHistoryApiToken,
-                StartTime: request.StartTime,
-                EndTime: request.EndTime);
+                StartDate: request.StartDate,
+                EndDate: request.EndDate);
 
             await _service.ExecuteAsync(
                 command: gameRecordCommand,

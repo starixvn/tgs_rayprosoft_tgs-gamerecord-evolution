@@ -36,8 +36,8 @@ namespace Tgs.GameRecord.EvolutionService.Core.WorkerServices
                apiUrl: command.GameApiUrl,
                casinoId: command.CasinoId,
                gameHistoryApiToken: command.GameHistoryApiToken,
-               startDate: command.StartTime,
-               endDate: command.EndTime,
+               startDate: command.StartDate,
+               endDate: command.EndDate,
                cancellationToken: cancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation("LogOn:{logOn} | Request:{request} | Response:{response}",

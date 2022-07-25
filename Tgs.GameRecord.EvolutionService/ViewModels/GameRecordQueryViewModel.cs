@@ -4,6 +4,6 @@
         Uri GameApiUrl,
         string CasinoId,
         string GameHistoryApiToken,
-        DateTimeOffset StartTime,
-        DateTimeOffset EndTime);
+        DateTimeOffset StartDate,
+        DateTimeOffset EndDate);
 }
