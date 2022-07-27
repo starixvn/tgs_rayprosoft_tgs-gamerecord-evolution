@@ -9,6 +9,7 @@ namespace Tgs.GameRecord.EvolutionService.Core.DispatchServices
         private readonly ICommandService<EvolutionWorkerCommand> _commandService;
         private readonly GameRecordInfoOptions _gameRecordInfoOptions;
         private readonly IScheduleDispatch _scheduleDispatch;
+        private readonly double _intervalMinute;
 
         public ScheduleDispatchService(
             IOptions<GameRecordInfoOptions> options,
@@ -19,6 +20,9 @@ namespace Tgs.GameRecord.EvolutionService.Core.DispatchServices
             _gameRecordInfoOptions = options.Value;
             _commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
             _scheduleDispatch = scheduleDispatch ?? throw new ArgumentNullException(nameof(scheduleDispatch));
+            _intervalMinute = (_gameRecordInfoOptions.IntervalMinute < _gameRecordInfoOptions.MinimumIntervalMinute)
+                            ? _gameRecordInfoOptions.MinimumIntervalMinute
+                            : _gameRecordInfoOptions.IntervalMinute;
         }
 
         public async ValueTask ExecuteAsync(ScheduleDispatchCommand command, CancellationToken cancellationToken = default)
@@ -31,7 +35,8 @@ namespace Tgs.GameRecord.EvolutionService.Core.DispatchServices
                     try
                     {
                         var endDate = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\THH:mm:00K"), @"yyyy-MM-dd\THH:mm:ssK", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
-                        var startDate = endDate.AddMinutes((double)_gameRecordInfoOptions.IntervalMinute * -1);
+
+                        var startDate = endDate.AddMinutes(_intervalMinute * -1);
 
                         await _commandService.ExecuteAsync(new EvolutionWorkerCommand(
                              GameApiUrl: command.GameApiUrl,
@@ -42,7 +47,7 @@ namespace Tgs.GameRecord.EvolutionService.Core.DispatchServices
                     }
                     finally
                     {
-                        _ = await _scheduleDispatch.UnlockAsync(key: key).ConfigureAwait(false);
+                        await _scheduleDispatch.UnlockAsync(key: key).ConfigureAwait(false);
                     }
                 }
             }

@@ -8,6 +8,6 @@ namespace Tgs.GameRecord.EvolutionService.Core
 
         public Task<bool> LockingAsync(string key, ScheduleDispatchCommand command);
 
-        public Task<bool> UnlockAsync(string key);
+        public Task UnlockAsync(string key);
     }
 }

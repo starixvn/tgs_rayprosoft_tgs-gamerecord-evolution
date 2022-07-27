@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     ServiceLifetime.Transient)
                 .AddGameInterfaceEvoClient(gameInterfaceEvoOptions)
                 .AddGameProvidersQueryServerClient(gameProvidersQueryServerClientOptions)
-                .AddTransient<IScheduleDispatch>(sp => ActivatorUtilities.CreateInstance<ScheduleDispatch>(sp, redisDatabaseResolver(sp), TimeSpan.FromMinutes(4)))
+                .AddTransient<IScheduleDispatch>(sp => ActivatorUtilities.CreateInstance<ScheduleDispatch>(sp, redisDatabaseResolver(sp)))
                 .AddTransient<IUtensil, UtensilRepository>()
                 .Decorate<IUtensil>((innerRepository, sp) => ActivatorUtilities.CreateInstance<UtensilMemoryCacheRepository>(sp, innerRepository, TimeSpan.FromHours(1)));
     }
