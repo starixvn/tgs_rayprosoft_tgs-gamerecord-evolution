@@ -8,8 +8,8 @@ namespace Tgs.GameRecord.EvolutionService.Core
     internal class ScheduleDispatch : IScheduleDispatch
     {
         private readonly IDatabase _database;
-        private readonly GameRecordInfoOptions _gameRecordInfoOptions;
         private readonly TimeSpan _expiry;
+        private readonly GameRecordInfoOptions _gameRecordInfoOptions;
 
         public ScheduleDispatch(
             IOptions<GameRecordInfoOptions> options,

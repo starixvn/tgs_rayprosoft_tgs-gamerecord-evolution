@@ -8,8 +8,8 @@ namespace Tgs.GameRecord.EvolutionService.Core.DispatchServices
     {
         private readonly ICommandService<EvolutionWorkerCommand> _commandService;
         private readonly GameRecordInfoOptions _gameRecordInfoOptions;
-        private readonly IScheduleDispatch _scheduleDispatch;
         private readonly double _intervalMinute;
+        private readonly IScheduleDispatch _scheduleDispatch;
 
         public ScheduleDispatchService(
             IOptions<GameRecordInfoOptions> options,
