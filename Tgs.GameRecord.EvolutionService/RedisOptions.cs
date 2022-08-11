@@ -1,7 +1,6 @@
-﻿namespace Tgs.GameRecord.EvolutionService
+﻿namespace Tgs.GameRecord.EvolutionService;
+
+public record RedisOptions
 {
-    public record RedisOptions
-    {
-        public string ConnectionString { get; set; } = "localhost";
-    }
+    public string ConnectionString { get; set; } = "localhost";
 }

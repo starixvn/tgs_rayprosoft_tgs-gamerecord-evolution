@@ -1,10 +1,9 @@
-﻿namespace Tgs.GameRecord.EvolutionService.Core
+﻿namespace Tgs.GameRecord.EvolutionService.Core;
+
+public enum GameRoundStatus
 {
-    public enum GameRoundStatus
-    {
-        New,
-        Open,
-        Closed,
-        Void
-    }
+    New,
+    Open,
+    Closed,
+    Void
 }
