@@ -9,8 +9,8 @@ data:
       "GameRecordInfo": {
         "GameProviderCode": "EVOTF",
         "MinimumIntervalMinute": 6,
-        "IntervalMinute": 10,
-        "LockMinute": 8.5
+        "IntervalMinute": 8,
+        "LockMinute": 6.5
       },
       "GameRecord": {
          "GameProvidersQueryServerBaseUrl": "http://game-gameprovider-queryserver/",
