@@ -47,6 +47,8 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
                 }
             }
 
+            var playerWinLoss = record.SettleAmount.ToDecimal() - record.ValidBetAmount.ToDecimal();
+
             var data = new GameRoundData(
                 ExternalRoundId: record.ExternalRoundId,
                 GameProviderId: command.GameProviderId,
@@ -66,9 +68,9 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
                 SettleAmount: record.SettleAmount.ToDecimal(),
                 Commission: 0,
                 Turnover: record.ValidBetAmount.ToDecimal(),
-                PlayerWinLoss: record.SettleAmount.ToDecimal() - record.ValidBetAmount.ToDecimal(),
+                PlayerWinLoss: playerWinLoss,
                 AdditionalData: record.AdditionalData,
-                ClientStatus: (record.SettleAmount > 0) ? GameRoundClientStatus.Win : GameRoundClientStatus.Loss,
+                ClientStatus: (playerWinLoss > 0) ? GameRoundClientStatus.Win : GameRoundClientStatus.Loss,
                 Success: success);
 
             var subject = $"tgs.gp.gamerecord.database.round.{_gameRecordInfoOptions.GameProviderCode}".ToLower();
