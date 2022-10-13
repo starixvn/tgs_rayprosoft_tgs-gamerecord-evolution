@@ -11,9 +11,10 @@ namespace Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 internal class GamePullRecordCommandService : ICommandService<GamePullRecordCommand>
 {
     private readonly ILogger<GamePullRecordCommandService> _logger;
-    private readonly GameRecordInfoOptions _gameRecordInfoOptions;
+    private readonly GameRecordInfoOptions _gameRecordInfo;
     private readonly IMessageSender _messageSender;
     private readonly IUtensil _utensil;
+    private readonly string _subject;
 
     public GamePullRecordCommandService(
         ILogger<GamePullRecordCommandService> logger,
@@ -22,9 +23,10 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
         IUtensil utensil)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _gameRecordInfoOptions = options.Value;
+        _gameRecordInfo = options.Value;
         _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
+        _subject = _gameRecordInfo.MongoGlobPattern;
     }
 
     public async ValueTask ExecuteAsync(GamePullRecordCommand command, CancellationToken cancellationToken = default)
@@ -75,13 +77,11 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
                 ClientStatus: (playerWinLoss > 0) ? GameRoundClientStatus.Win : GameRoundClientStatus.Loss,
                 Success: success);
 
-            var subject = $"tgs.gp.gamerecord.database.round.{_gameRecordInfoOptions.GameProviderCode}".ToLower();
-
-            _logger.LogInformation("LogOn:{logOn}  Subject:{subject} MessageRequest:{request}", DateTime.Now.ToString("o"), subject, data);
+            _logger.LogInformation("LogOn:{logOn}  Subject:{subject} MessageRequest:{request}", DateTime.Now.ToString("o"), _subject, data);
 
             await _messageSender
                     .PublishAsync(
-                        subject: $"tgs.gp.gamerecord.database.round.{_gameRecordInfoOptions.GameProviderCode}".ToLower(),
+                        subject: _subject,
                         data: data.ToBson(),
                         cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
