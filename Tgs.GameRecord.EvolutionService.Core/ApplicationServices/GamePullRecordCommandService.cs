@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
+using Tgs.GameRounds.Common;
+using Tgs.GameRounds.Common.MessageModels;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 
@@ -47,9 +49,9 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
                 }
             }
 
-            var playerWinLoss = record.SettleAmount.ToDecimal() - record.ValidBetAmount.ToDecimal();
+            var playerWinLoss = record.SettleAmount.ToDecimal().GetValueOrDefault(0) - record.ValidBetAmount.ToDecimal().GetValueOrDefault(0);
 
-            var data = new GameRoundData(
+            var data = new GameRecordMessage(
                 ExternalRoundId: record.ExternalRoundId,
                 GameProviderId: command.GameProviderId,
                 GameProviderCode: command.GameProviderCode,
@@ -63,11 +65,11 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
                 ExternalCreatedOn: record.ExternalCreatedOn.ToDateTimeOffset(),
                 ExternalClosedOn: record.ExternalClosedOn.ToDateTimeOffset(),
                 BrandId: (playerModel == null) ? Guid.Empty : playerModel.BrandId,
-                BetAmount: record.BetAmount.ToDecimal(),
-                ValidBetAmount: record.ValidBetAmount.ToDecimal(),
-                SettleAmount: record.SettleAmount.ToDecimal(),
+                BetAmount: record.BetAmount.ToDecimal().GetValueOrDefault(0),
+                ValidBetAmount: record.ValidBetAmount.ToDecimal().GetValueOrDefault(0),
+                SettleAmount: record.SettleAmount.ToDecimal().GetValueOrDefault(0),
                 Commission: 0,
-                Turnover: record.ValidBetAmount.ToDecimal(),
+                Turnover: record.ValidBetAmount.ToDecimal().GetValueOrDefault(0),
                 PlayerWinLoss: playerWinLoss,
                 AdditionalData: record.AdditionalData,
                 ClientStatus: (playerWinLoss > 0) ? GameRoundClientStatus.Win : GameRoundClientStatus.Loss,

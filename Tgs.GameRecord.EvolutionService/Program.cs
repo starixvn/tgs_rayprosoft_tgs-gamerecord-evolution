@@ -4,6 +4,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.GameRecord.EvolutionService;
+using Tgs.GameRecord.EvolutionService.Core;
 using Tgs.MessageQueue.MongoDB.Configuration;
 using MongoMessageQueue = MongoDB.Messaging.MessageQueue;
 
@@ -36,28 +37,29 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMemoryCache();
 
-builder.Services.AddGameRecordEvolutionService((options, sp) =>
-{
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    options.ConnectionString = configuration.GetConnectionString("Redis");
-});
+builder.Services.AddGameRecordCore(
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        options.ConnectionString = configuration.GetConnectionString("Redis");
+    },
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        configuration.GetSection("GameRecordInfo").Bind(options);
+    },
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        options.Url = configuration.GetValue<Uri>("GameRecord:GameInterfaceEvolutionBaseUrl");
+    },
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersQueryServerBaseUrl");
+    });
 
-builder.Services.AddGameRecordEvolutionServiceCore((options, sp) =>
-{
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    configuration.GetSection("GameRecordInfo").Bind(options);
-},
-(options, sp) =>
-{
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    options.Url = configuration.GetValue<Uri>("GameRecord:GameInterfaceEvolutionBaseUrl");
-},
-(options, sp) =>
-{
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersQueryServerBaseUrl");
-},
-(sp) => sp.GetRequiredService<RedisConnectionManager>().Database);
+var gameRecordInfo = builder.Configuration.GetSection("GameRecordInfo").Get<GameRecordInfoOptions>();
 
 builder.Services
     .AddMessageQueue()
@@ -65,7 +67,7 @@ builder.Services
     {
         _ = config
         .DefineMessageQueue(
-            "gp.gamerecord.database",
+            gameRecordInfo.MongoDefine,
             sp => new MongoMessageQueueBuilderOptions
             {
                 MessageQueue = MongoMessageQueue.Default,
@@ -80,11 +82,10 @@ builder.Services
              var configuration = sp.GetRequiredService<IConfiguration>();
              options.Url = configuration.GetConnectionString("Nats");
          })
-         .AddHandler<ScheduleMessageHandler>("gp.gamerecord.schedule.evotf", "gp.gamerecord.schedule")
-         .AddProcessor<ManualMessageHandler>("gp.gamerecord.manual.evotf", "gp.gamerecord.manual");
+         .AddHandler<ScheduleMessageHandler>("gp.gamerecord.schedule.evotf", "gp.gamerecord.schedule");
      })
      .ClearAllExchanges()
-     .AddMongoGlobPatternExchange("tgs.gp.gamerecord.database.round.evotf", "gp.gamerecord.database", "tgs.gp.gamerecord.database.round.evotf");
+     .AddMongoGlobPatternExchange(gameRecordInfo.MongoGlobPattern, gameRecordInfo.MongoDefine, gameRecordInfo.MongoGlobPattern);
 
 builder.Services
      .AddSingleton<IConfigureOptions<OtlpExporterOptions>>(

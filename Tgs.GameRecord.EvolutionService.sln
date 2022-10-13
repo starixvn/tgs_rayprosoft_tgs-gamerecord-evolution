@@ -5,7 +5,9 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.EvolutionService", "Tgs.GameRecord.EvolutionService\Tgs.GameRecord.EvolutionService.csproj", "{207AFA33-7770-4C92-AABB-F911E0A9E749}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.GameRecord.EvolutionService.Core", "Tgs.GameRecord.EvolutionService.Core\Tgs.GameRecord.EvolutionService.Core.csproj", "{B9331939-F563-4613-89FC-47EAF36382F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.EvolutionService.Core", "Tgs.GameRecord.EvolutionService.Core\Tgs.GameRecord.EvolutionService.Core.csproj", "{B9331939-F563-4613-89FC-47EAF36382F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.GameRecord.EvolutionManualService", "Tgs.GameRecord.EvolutionManualService\Tgs.GameRecord.EvolutionManualService.csproj", "{DD1A0E87-947E-4A09-85E8-32789A0DF806}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{B9331939-F563-4613-89FC-47EAF36382F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9331939-F563-4613-89FC-47EAF36382F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9331939-F563-4613-89FC-47EAF36382F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD1A0E87-947E-4A09-85E8-32789A0DF806}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD1A0E87-947E-4A09-85E8-32789A0DF806}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD1A0E87-947E-4A09-85E8-32789A0DF806}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD1A0E87-947E-4A09-85E8-32789A0DF806}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
