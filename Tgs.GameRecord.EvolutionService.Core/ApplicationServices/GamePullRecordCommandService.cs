@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
+using Tgs.GameRounds.Common;
+using Tgs.GameRounds.Common.MessageModels;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 
@@ -9,9 +11,10 @@ namespace Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 internal class GamePullRecordCommandService : ICommandService<GamePullRecordCommand>
 {
     private readonly ILogger<GamePullRecordCommandService> _logger;
-    private readonly GameRecordInfoOptions _gameRecordInfoOptions;
+    private readonly GameRecordInfoOptions _gameRecordInfo;
     private readonly IMessageSender _messageSender;
     private readonly IUtensil _utensil;
+    private readonly string _subject;
 
     public GamePullRecordCommandService(
         ILogger<GamePullRecordCommandService> logger,
@@ -20,9 +23,10 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
         IUtensil utensil)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _gameRecordInfoOptions = options.Value;
+        _gameRecordInfo = options.Value;
         _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
+        _subject = _gameRecordInfo.MongoGlobPattern;
     }
 
     public async ValueTask ExecuteAsync(GamePullRecordCommand command, CancellationToken cancellationToken = default)
@@ -47,9 +51,9 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
                 }
             }
 
-            var playerWinLoss = record.SettleAmount.ToDecimal() - record.ValidBetAmount.ToDecimal();
+            var playerWinLoss = record.SettleAmount.ToDecimal().GetValueOrDefault(0) - record.ValidBetAmount.ToDecimal().GetValueOrDefault(0);
 
-            var data = new GameRoundData(
+            var data = new GameRecordMessage(
                 ExternalRoundId: record.ExternalRoundId,
                 GameProviderId: command.GameProviderId,
                 GameProviderCode: command.GameProviderCode,
@@ -63,23 +67,21 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
                 ExternalCreatedOn: record.ExternalCreatedOn.ToDateTimeOffset(),
                 ExternalClosedOn: record.ExternalClosedOn.ToDateTimeOffset(),
                 BrandId: (playerModel == null) ? Guid.Empty : playerModel.BrandId,
-                BetAmount: record.BetAmount.ToDecimal(),
-                ValidBetAmount: record.ValidBetAmount.ToDecimal(),
-                SettleAmount: record.SettleAmount.ToDecimal(),
+                BetAmount: record.BetAmount.ToDecimal().GetValueOrDefault(0),
+                ValidBetAmount: record.ValidBetAmount.ToDecimal().GetValueOrDefault(0),
+                SettleAmount: record.SettleAmount.ToDecimal().GetValueOrDefault(0),
                 Commission: 0,
-                Turnover: record.ValidBetAmount.ToDecimal(),
+                Turnover: record.ValidBetAmount.ToDecimal().GetValueOrDefault(0),
                 PlayerWinLoss: playerWinLoss,
                 AdditionalData: record.AdditionalData,
                 ClientStatus: (playerWinLoss > 0) ? GameRoundClientStatus.Win : GameRoundClientStatus.Loss,
                 Success: success);
 
-            var subject = $"tgs.gp.gamerecord.database.round.{_gameRecordInfoOptions.GameProviderCode}".ToLower();
-
-            _logger.LogInformation("LogOn:{logOn}  Subject:{subject} MessageRequest:{request}", DateTime.Now.ToString("o"), subject, data);
+            _logger.LogInformation("LogOn:{logOn}  Subject:{subject} MessageRequest:{request}", DateTime.Now.ToString("o"), _subject, data);
 
             await _messageSender
                     .PublishAsync(
-                        subject: $"tgs.gp.gamerecord.database.round.{_gameRecordInfoOptions.GameProviderCode}".ToLower(),
+                        subject: _subject,
                         data: data.ToBson(),
                         cancellationToken: cancellationToken)
                     .ConfigureAwait(false);

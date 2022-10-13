@@ -1,4 +1,4 @@
-﻿namespace Tgs.GameRecord.EvolutionService;
+﻿namespace Tgs.GameRecord.EvolutionService.Core;
 
 public record RedisOptions
 {
