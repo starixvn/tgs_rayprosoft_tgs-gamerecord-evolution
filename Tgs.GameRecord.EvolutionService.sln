@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.EvolutionSer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.EvolutionService.Core", "Tgs.GameRecord.EvolutionService.Core\Tgs.GameRecord.EvolutionService.Core.csproj", "{B9331939-F563-4613-89FC-47EAF36382F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.GameRecord.EvolutionManualService", "Tgs.GameRecord.EvolutionManualService\Tgs.GameRecord.EvolutionManualService.csproj", "{DD1A0E87-947E-4A09-85E8-32789A0DF806}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.EvolutionManualService", "Tgs.GameRecord.EvolutionManualService\Tgs.GameRecord.EvolutionManualService.csproj", "{DD1A0E87-947E-4A09-85E8-32789A0DF806}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "方案項目", "方案項目", "{07144936-6C87-41EB-AAA6-F47396B1A092}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		nuget.config = nuget.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

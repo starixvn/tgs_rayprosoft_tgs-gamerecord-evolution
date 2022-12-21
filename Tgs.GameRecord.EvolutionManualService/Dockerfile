@@ -7,9 +7,8 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BuildConfiguration=Release
-RUN --mount=type=secret,id=nuget,dst=/pat cp /pat ~/.nuget/NuGet/NuGet.Config
 WORKDIR /src
-COPY ["NuGet.config", "."]
+COPY ["nuget.config", "."]
 COPY ["Tgs.GameRecord.EvolutionManualService/Tgs.GameRecord.EvolutionManualService.csproj", "Tgs.GameRecord.EvolutionManualService/"]
 COPY ["Tgs.GameRecord.EvolutionService.Core/Tgs.GameRecord.EvolutionService.Core.csproj", "Tgs.GameRecord.EvolutionService.Core/"]
 RUN dotnet restore "Tgs.GameRecord.EvolutionManualService/Tgs.GameRecord.EvolutionManualService.csproj"

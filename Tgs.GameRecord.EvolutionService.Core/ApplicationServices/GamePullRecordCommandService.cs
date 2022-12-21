@@ -10,11 +10,11 @@ namespace Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 
 internal class GamePullRecordCommandService : ICommandService<GamePullRecordCommand>
 {
-    private readonly ILogger<GamePullRecordCommandService> _logger;
     private readonly GameRecordInfoOptions _gameRecordInfo;
+    private readonly ILogger<GamePullRecordCommandService> _logger;
     private readonly IMessageSender _messageSender;
-    private readonly IUtensil _utensil;
     private readonly string _subject;
+    private readonly IUtensil _utensil;
 
     public GamePullRecordCommandService(
         ILogger<GamePullRecordCommandService> logger,

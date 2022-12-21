@@ -41,7 +41,7 @@ builder.Services.AddGameRecordCore(
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
-        options.ConnectionString = configuration.GetConnectionString("Redis");
+        options.ConnectionString = configuration.GetConnectionString("Redis")!;
     },
     (options, sp) =>
     {
@@ -71,7 +71,7 @@ builder.Services
             sp => new MongoMessageQueueBuilderOptions
             {
                 MessageQueue = MongoMessageQueue.Default,
-                ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoMessaging")
+                ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoMessaging")!
             });
     })
      .AddNatsMessageQueue(natsConfig =>
@@ -80,7 +80,7 @@ builder.Services
          .ConfigQueueOptions((options, sp) =>
          {
              var configuration = sp.GetRequiredService<IConfiguration>();
-             options.Url = configuration.GetConnectionString("Nats");
+             options.Url = configuration.GetConnectionString("Nats")!;
          })
          .AddProcessor<ManualMessageHandler>("gp.gamerecord.manual.evotf", "gp.gamerecord.manual");
      })

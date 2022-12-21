@@ -47,10 +47,10 @@ Selector labels
 */}}
 {{- define "game-gamerecord-evolution-service.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "game-gamerecord-evolution-service.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "game-gamerecord-evolution-service.name" . }}
 tgs.kind: game
 tgs.game.kind: gamerecord
+tgs.gamerecord.kind: service
 tgs.gameprovider.kind: evotf
 {{- end }}
 
