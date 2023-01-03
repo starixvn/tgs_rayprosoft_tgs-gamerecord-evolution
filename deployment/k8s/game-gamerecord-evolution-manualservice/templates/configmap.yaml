@@ -15,7 +15,7 @@ data:
         "LockMinute": 1.5
       },
       "GameRecord": {
-         "GameProvidersQueryServerBaseUrl": "http://game-gameprovider-queryserver/",
+         "GameCommandClientBaseUrl": "http://game-gamecommand/",
          "GameInterfaceEvolutionBaseUrl": "http://game-gameinterface-evolution-service:9090/"
       }
     }

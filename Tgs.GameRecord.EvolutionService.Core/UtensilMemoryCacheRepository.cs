@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Tgs.GameProviders.QueryServer.Models;
+using Tgs.GameCommand.Common;
 
 namespace Tgs.GameRecord.EvolutionService.Core;
 
@@ -23,12 +23,20 @@ internal class UtensilMemoryCacheRepository : IUtensil
         _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
     }
 
-    public async ValueTask<Guid?> BrandGetGameProviderConfigurationIdAsync(Guid brandId, Guid gameProviderId)
+    public async ValueTask<Guid?> BrandGetGameProviderConfigurationIdAsync(
+        Guid brandId,
+        Guid gameProviderId,
+        CancellationToken cancellationToken = default)
     {
         var key = $"{_gameRecordInfo.GameProviderCode}:{brandId}:{gameProviderId}";
         if (!_memoryCache.TryGetValue(key, out Guid? gameProviderConfigurationId))
         {
-            gameProviderConfigurationId = await _utensil.BrandGetGameProviderConfigurationIdAsync(brandId, gameProviderId).ConfigureAwait(false);
+            gameProviderConfigurationId = await _utensil
+                .BrandGetGameProviderConfigurationIdAsync(
+                    brandId: brandId,
+                    gameProviderId: gameProviderId,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (gameProviderConfigurationId == null)
             {
@@ -39,12 +47,20 @@ internal class UtensilMemoryCacheRepository : IUtensil
         return gameProviderConfigurationId;
     }
 
-    public async ValueTask<int?> GetGameIdAsync(Guid gameProviderId, string gameExternalId)
+    public async ValueTask<int?> GetGameIdAsync(
+        Guid gameProviderId,
+        string gameExternalId,
+        CancellationToken cancellationToken = default)
     {
         var key = $"{_gameRecordInfo.GameProviderCode}:{gameExternalId}";
         if (!_memoryCache.TryGetValue(key, out int? gameId))
         {
-            gameId = await _utensil.GetGameIdAsync(gameProviderId, gameExternalId).ConfigureAwait(false);
+            gameId = await _utensil
+                .GetGameIdAsync(
+                    gameProviderId: gameProviderId,
+                    gameExternalId: gameExternalId,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (gameId.HasValue)
             {
@@ -54,24 +70,33 @@ internal class UtensilMemoryCacheRepository : IUtensil
         return gameId;
     }
 
-    public async ValueTask<Guid> GetGameProviderIdAsync(string gameProviderCode)
+    public async ValueTask<Guid> GetGameProviderIdAsync(CancellationToken cancellationToken = default)
     {
-        var key = $"{_gameRecordInfo.GameProviderCode}:{gameProviderCode}";
+        var key = $"{_gameRecordInfo.GameProviderCode}";
         if (!_memoryCache.TryGetValue(key, out Guid gameProviderId))
         {
-            gameProviderId = await _utensil.GetGameProviderIdAsync(gameProviderCode).ConfigureAwait(false);
+            gameProviderId = await _utensil
+                .GetGameProviderIdAsync(
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             _ = _memoryCache.Set(key, gameProviderId, absoluteExpirationRelativeToNow: _absoluteExpirationRelativeToNow);
         }
         return gameProviderId;
     }
 
-    public async ValueTask<PlayerModel?> GetPlayerAsync(string playerCode)
+    public async ValueTask<PlayerInfo?> GetPlayerAsync(
+        string playerCode,
+        CancellationToken cancellationToken = default)
     {
         var key = $"{_gameRecordInfo.GameProviderCode}:{playerCode}";
-        if (!_memoryCache.TryGetValue(key, out PlayerModel? playerModel))
+        if (!_memoryCache.TryGetValue(key, out PlayerInfo? playerModel))
         {
-            playerModel = await _utensil.GetPlayerAsync(playerCode).ConfigureAwait(false);
+            playerModel = await _utensil
+                .GetPlayerAsync(
+                    playerCode: playerCode,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (playerModel == null)
             {

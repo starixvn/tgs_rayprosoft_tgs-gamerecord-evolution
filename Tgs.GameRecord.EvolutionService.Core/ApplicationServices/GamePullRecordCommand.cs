@@ -2,4 +2,4 @@
 
 namespace Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 
-public record GamePullRecordCommand(Guid GameProviderId, string GameProviderCode, IEnumerable<GameHistoryRecord> Records);
+public record GamePullRecordCommand(IEnumerable<GameHistoryRecord> Records);

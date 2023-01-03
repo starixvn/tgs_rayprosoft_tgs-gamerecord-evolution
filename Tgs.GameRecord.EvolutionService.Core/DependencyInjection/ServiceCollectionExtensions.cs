@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
+using Tgs.GameCommand.Client;
 using Tgs.GameInterface.EvolutionService.Client;
-using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameRecord.EvolutionService.Core;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
         Action<RedisOptions, IServiceProvider> redisDBconfigure,
         Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
         Action<GameInterfaceEvoOptions, IServiceProvider> gameInterfaceEvoOptions,
-        Action<GameProvidersQueryServerClientOptions, IServiceProvider> gameProvidersQueryServerClientOptions)
+        Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions)
         => services
             .AddOptions<RedisOptions>()
             .Configure(redisDBconfigure)
@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
                 Assembly.GetExecutingAssembly(),
                 ServiceLifetime.Transient)
             .AddGameInterfaceEvoClient(gameInterfaceEvoOptions)
-            .AddGameProvidersQueryServerClient(gameProvidersQueryServerClientOptions)
+            .AddGameCommandClient(gameCommandClientOptions)
             .AddSingleton<RedisConnectionManager>()
             .AddTransient<IScheduleDispatch>(sp => ActivatorUtilities.CreateInstance<ScheduleDispatch>(sp, sp.GetRequiredService<RedisConnectionManager>().Database))
             .AddTransient<IUtensil, UtensilRepository>()
