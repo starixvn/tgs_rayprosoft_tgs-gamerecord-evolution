@@ -7,8 +7,6 @@ data:
   appsettings.json: |
     {
       "GameRecordInfo": {
-        "MongoDefine": "gp.gamerecord.database.manual",
-        "MongoGlobPattern": "tgs.gp.gamerecord.database.manual.evotf",
         "GameProviderCode": "EVOTF",
         "MinimumIntervalMinute": 1,
         "IntervalMinute": 3,

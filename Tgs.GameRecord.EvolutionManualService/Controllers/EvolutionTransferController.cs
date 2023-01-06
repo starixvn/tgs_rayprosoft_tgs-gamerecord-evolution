@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Tgs.GameRecord.EvolutionManualService.ViewModels;
 using Tgs.GameRecord.EvolutionService.Core.WorkerServices;
-using Tgs.GameRecord.JiliService.ViewModels;
 using Tgs.ServiceUtility;
 
-namespace Tgs.GameRecord.JiliService.Controllers;
+namespace Tgs.GameRecord.EvolutionManualService.Controllers;
 
 [ApiController]
 [Route("evotf")]

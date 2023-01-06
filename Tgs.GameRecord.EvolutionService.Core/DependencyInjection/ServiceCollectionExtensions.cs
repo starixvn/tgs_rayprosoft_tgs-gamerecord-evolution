@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         Action<RedisOptions, IServiceProvider> redisDBconfigure,
         Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
+        Action<MongoSettingOptions, IServiceProvider> mongoSettingOptions,
         Action<GameInterfaceEvoOptions, IServiceProvider> gameInterfaceEvoOptions,
         Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions)
         => services
@@ -20,13 +21,16 @@ public static class ServiceCollectionExtensions
             .AddOptions<GameRecordInfoOptions>()
             .Configure(gameRecordInfoOptions)
             .Services
+            .AddOptions<MongoSettingOptions>()
+            .Configure(mongoSettingOptions)
+            .Services
             .RegisterAllServiceUtilityTypes(
                 Assembly.GetExecutingAssembly(),
                 ServiceLifetime.Transient)
+            .AddMemoryCache()
             .AddGameInterfaceEvoClient(gameInterfaceEvoOptions)
             .AddGameCommandClient(gameCommandClientOptions)
             .AddSingleton<RedisConnectionManager>()
             .AddTransient<IScheduleDispatch>(sp => ActivatorUtilities.CreateInstance<ScheduleDispatch>(sp, sp.GetRequiredService<RedisConnectionManager>().Database))
-            .AddTransient<IUtensil, UtensilRepository>()
-            .Decorate<IUtensil>((innerRepository, sp) => ActivatorUtilities.CreateInstance<UtensilMemoryCacheRepository>(sp, innerRepository, TimeSpan.FromHours(1)));
+            .AddTransient<IUtensil>(sp => ActivatorUtilities.CreateInstance<UtensilRepository>(sp, TimeSpan.FromHours(1)));
 }

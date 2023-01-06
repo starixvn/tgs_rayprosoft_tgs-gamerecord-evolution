@@ -1,4 +1,4 @@
-﻿namespace Tgs.GameRecord.EvolutionService;
+﻿namespace Tgs.GameRecord.EvolutionManualService;
 
 public record ManualMessageRequest(
     Uri GameApiUrl,

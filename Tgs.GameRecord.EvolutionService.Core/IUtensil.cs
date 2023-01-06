@@ -4,7 +4,7 @@ namespace Tgs.GameRecord.EvolutionService.Core;
 
 public interface IUtensil
 {
-    ValueTask<Guid?> BrandGetGameProviderConfigurationIdAsync(
+    ValueTask<Guid?> GetBrandGameProviderConfigurationIdAsync(
         Guid brandId,
         Guid gameProviderId,
         CancellationToken cancellationToken = default);
@@ -14,7 +14,8 @@ public interface IUtensil
         string gameExternalId,
         CancellationToken cancellationToken = default);
 
-    ValueTask<Guid> GetGameProviderIdAsync(CancellationToken cancellationToken = default);
+    ValueTask<Guid> GetGameProviderIdAsync(
+        CancellationToken cancellationToken = default);
 
     ValueTask<PlayerInfo?> GetPlayerAsync(
         string playerCode,
