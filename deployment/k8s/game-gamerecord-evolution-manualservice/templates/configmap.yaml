@@ -8,10 +8,10 @@ data:
     {
       "GameRecordInfo": {
         "GameProviderCode": "EVOTF",
-        "IntervalMinutes": 3,
+        "IntervalMinutes": 7,
         "IntervalMinutesMax": 60,
         "IntervalMinutesMinimum": 1,
-        "LockMinute": 1.5
+        "LockMinute": 5
       },
       "GameRecord": {
          "GameCommandClientBaseUrl": "http://game-gamecommand/",
