@@ -13,18 +13,15 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
     private readonly GameRecordInfoOptions _gameRecordInfo;
     private readonly ILogger<GamePullRecordCommandService> _logger;
     private readonly IMessageSender _messageSender;
-    private readonly MongoSettingOptions _mongoSetting;
     private readonly IUtensil _utensil;
 
     public GamePullRecordCommandService(
         ILogger<GamePullRecordCommandService> logger,
         IOptions<GameRecordInfoOptions> options,
-        IOptions<MongoSettingOptions> mongoSettingOptions,
         IMessageSender messageSender,
         IUtensil utensil)
     {
         _gameRecordInfo = options.Value;
-        _mongoSetting = mongoSettingOptions.Value;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
@@ -98,12 +95,12 @@ internal class GamePullRecordCommandService : ICommandService<GamePullRecordComm
 
             _logger.LogInformation("LogOn:{logOn}  Subject:{subject} MessageRequest:{message}",
                 DateTime.Now.ToString("o"),
-                _mongoSetting.GlobPattern,
+                "tgs.gp.gamerecord.database.round.evotf",
                 message);
 
             await _messageSender
                 .PublishAsync(
-                    subject: _mongoSetting.GlobPattern,
+                    subject: "tgs.gp.gamerecord.database.round.evotf",
                     data: message.ToBson(),
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);

@@ -4,7 +4,7 @@ using Tgs.GameRecord.EvolutionService.Core.DispatchServices;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 
-namespace Tgs.GameRecord.EvolutionService;
+namespace Tgs.GameRecord.EvolutionService.Messages;
 
 internal class ScheduleMessageHandler : IMessageHandler
 {

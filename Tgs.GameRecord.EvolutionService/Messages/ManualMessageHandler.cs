@@ -4,7 +4,7 @@ using Tgs.GameRecord.EvolutionService.Core.WorkerServices;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 
-namespace Tgs.GameRecord.EvolutionManualService;
+namespace Tgs.GameRecord.EvolutionService.Messages;
 
 public class ManualMessageHandler : IMessageProcessor
 {

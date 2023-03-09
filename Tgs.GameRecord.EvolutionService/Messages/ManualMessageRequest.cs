@@ -1,6 +1,6 @@
-﻿namespace Tgs.GameRecord.EvolutionManualService.ViewModels;
+﻿namespace Tgs.GameRecord.EvolutionService.Messages;
 
-public record GameRecordQueryViewModel(
+public record ManualMessageRequest(
     Uri GameApiUrl,
     string CasinoId,
     string GameHistoryApiToken,

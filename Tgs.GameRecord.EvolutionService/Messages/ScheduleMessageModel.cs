@@ -1,4 +1,4 @@
-﻿namespace Tgs.GameRecord.EvolutionService;
+﻿namespace Tgs.GameRecord.EvolutionService.Messages;
 
 public record ScheduleMessageModel(
     Uri GameApiUrl,

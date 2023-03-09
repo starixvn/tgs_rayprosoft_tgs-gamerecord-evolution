@@ -18,7 +18,7 @@ public static class GameRecordRegisterExtensions
 
             var games = client
                 .GameQueryAsync(
-                    gameProviderCode: gameRecordInfo.GameProviderCode)
+                    gameProviderCode: gameRecordInfo!.GameProviderCode)
                 .ToEnumerable()
                 ?? Enumerable.Empty<GameInfo>();
 
