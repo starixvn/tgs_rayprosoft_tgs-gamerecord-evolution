@@ -66,7 +66,7 @@ builder.Services.AddGameRecordCore(
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
-        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameCommandClientBaseUrl")!;
+        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameRoundsScheduleClientBaseUrl")!;
     },
     (options, sp) =>
     {

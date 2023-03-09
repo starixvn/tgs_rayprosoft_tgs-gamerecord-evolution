@@ -21,7 +21,7 @@ data:
       "GameRecord": {
          "GameCommandClientBaseUrl": "http://game-gamecommand/",
          "GameRoundsScheduleClientBaseUrl": "http://game-gamerounds-schedule:9090/",
-         "GameInterfaceEvolutionBaseUrl": "http://game-gameinterface-evolution-service:9090/"
+         "GameInterfaceClientBaseUrl": "http://game-gameinterface-evolution-service:9090/"
       }
     }
   monitor.settings.json: |
