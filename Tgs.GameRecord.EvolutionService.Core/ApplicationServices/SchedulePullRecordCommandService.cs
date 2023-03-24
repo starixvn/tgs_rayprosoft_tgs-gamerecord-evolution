@@ -6,23 +6,23 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.EvolutionService.Core.WorkerServices;
 
-internal class GameHistoryCommandService : ICommandService<GameHistoryCommand>
+internal class SchedulePullRecordCommandService : ICommandService<SchedulePullRecordCommand>
 {
     private readonly IGameInterfaceEvolutionClient _client;
-    private readonly ILogger<GameHistoryCommandService> _logger;
-    private readonly ICommandService<PublishCommand> _service;
+    private readonly ILogger<SchedulePullRecordCommandService> _logger;
+    private readonly ICommandService<ScheduleHandleRecordCommand> _service;
 
-    public GameHistoryCommandService(
-        ILogger<GameHistoryCommandService> logger,
+    public SchedulePullRecordCommandService(
+        ILogger<SchedulePullRecordCommandService> logger,
         IGameInterfaceEvolutionClient client,
-        ICommandService<PublishCommand> service)
+        ICommandService<ScheduleHandleRecordCommand> service)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _service = service ?? throw new ArgumentNullException(nameof(service));
     }
 
-    public async ValueTask ExecuteAsync(GameHistoryCommand command, CancellationToken cancellationToken = default)
+    public async ValueTask ExecuteAsync(SchedulePullRecordCommand command, CancellationToken cancellationToken = default)
     {
         var gameHistoriesReply = await _client
             .GetGameHistoriesAsync(
@@ -44,31 +44,27 @@ internal class GameHistoryCommandService : ICommandService<GameHistoryCommand>
             return;
         }
 
-        var records = gameHistoriesReply.Records ?? Enumerable.Empty<GameHistoryRecord>();
+        var gameRecords = gameHistoriesReply.Records ?? Enumerable.Empty<GameHistoryRecord>();
 
-        if (!records.Any())
+        if (!gameRecords.Any())
         {
             return;
         }
 
-        foreach (var record in records)
+        foreach (var gameRecord in gameRecords)
         {
-            var publishCommand = new PublishCommand(
-                    record.PlayerCode,
-                    record.ExternalRoundId,
-                    record.ExternalGameId,
-                    record.ExternalCreatedOn.ToDateTimeOffset(),
-                    record.ExternalClosedOn.ToDateTimeOffset(),
-                    record.BetAmount.ToDecimal().GetValueOrDefault(0),
-                    record.ValidBetAmount.ToDecimal().GetValueOrDefault(0),
-                    record.SettleAmount.ToDecimal().GetValueOrDefault(0),
-                    record.AdditionalData);
-
-            await _service
-                 .ExecuteAsync(
-                     command: publishCommand,
-                     cancellationToken: cancellationToken)
-                 .ConfigureAwait(false);
+            try
+            {
+                await _service
+                .ExecuteAsync(
+                        command: new(gameRecord),
+                        cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "遊戲紀錄處理發生例外.({gameRecord})", gameRecord);
+            }
         }
     }
 }

@@ -12,16 +12,16 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
 {
     private readonly IGameRoundsScheduleClient _clinet;
     private readonly ILogger<ScheduleFormDispatcher> _logger;
-    private readonly ICommandService<GameHistoryManualCommand> _manualService;
+    private readonly ICommandService<ManualPullRecordCommand> _manualService;
     private readonly IScheduleFormLock _scheduleFormLock;
-    private readonly ICommandService<GameHistoryCommand> _service;
+    private readonly ICommandService<SchedulePullRecordCommand> _service;
 
     public ScheduleFormDispatcher(
         ILogger<ScheduleFormDispatcher> logger,
         IGameRoundsScheduleClient clinet,
         IScheduleFormLock scheduleFormLock,
-        ICommandService<GameHistoryCommand> service,
-        ICommandService<GameHistoryManualCommand> manualService)
+        ICommandService<SchedulePullRecordCommand> service,
+        ICommandService<ManualPullRecordCommand> manualService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _clinet = clinet ?? throw new ArgumentNullException(nameof(clinet));
@@ -76,7 +76,7 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
 
             if (scheduleForm.Source == ScheduleFormSource.Schedule)
             {
-                var command = new GameHistoryCommand(
+                var command = new SchedulePullRecordCommand(
                         ApiUrl: new Uri(parameter.ApiUrl),
                         CasinoId: parameter.CasinoId,
                         GameHistoryApiToken: parameter.GameHistoryApiToken,
@@ -91,7 +91,7 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
             }
             else
             {
-                var command = new GameHistoryManualCommand(
+                var command = new ManualPullRecordCommand(
                         ApiUrl: new Uri(parameter.ApiUrl),
                         CasinoId: parameter.CasinoId,
                         GameHistoryApiToken: parameter.GameHistoryApiToken,

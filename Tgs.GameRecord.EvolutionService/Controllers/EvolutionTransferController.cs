@@ -28,8 +28,8 @@ public class EvolutionTransferController : ControllerBase
     /// </remarks>
     [HttpPost]
     public ValueTask ExecuteAsync(
-        [FromServices] ICommandService<GameHistoryCommand> service,
-        GameHistoryCommand source)
+        [FromServices] ICommandService<SchedulePullRecordCommand> service,
+        SchedulePullRecordCommand source)
         => service
         .ExecuteAsync(
             command: source,
@@ -55,8 +55,8 @@ public class EvolutionTransferController : ControllerBase
     /// </remarks>
     [HttpPost("manual")]
     public ValueTask ManualExecuteAsync(
-        [FromServices] ICommandService<GameHistoryManualCommand> service,
-        GameHistoryManualCommand source)
+        [FromServices] ICommandService<ManualPullRecordCommand> service,
+        ManualPullRecordCommand source)
         => service
         .ExecuteAsync(
             command: source,

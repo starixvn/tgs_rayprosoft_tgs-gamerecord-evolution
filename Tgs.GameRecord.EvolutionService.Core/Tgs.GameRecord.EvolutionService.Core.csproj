@@ -13,12 +13,10 @@
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
 		<PackageReference Include="Tgs.GameCommand.Client" Version="0.0.7" />
 		<PackageReference Include="Tgs.GameInterface.EvolutionService.Client" Version="1.0.7" />
-		<PackageReference Include="Tgs.GameRounds.Client" Version="0.0.36" />
-		<PackageReference Include="Tgs.GameRounds.Schedule.Client" Version="0.0.16" />
-		<PackageReference Include="Tgs.GameRounds.Work.Client" Version="0.0.3" />
-		<PackageReference Include="Tgs.GameRounds.Work.Manual.Client" Version="0.0.1" />
+		<PackageReference Include="Tgs.GameRounds.Schedule.Client" Version="0.0.20" />
+		<PackageReference Include="Tgs.GameRounds.Work.Client" Version="0.0.4" />
+		<PackageReference Include="Tgs.GameRounds.Work.Manual.Client" Version="0.0.2" />
 		<PackageReference Include="Tgs.MessageQueue" Version="2.3.0" />
-		<PackageReference Include="Tgs.MessageQueue.MongoDB" Version="2.3.1" />
 		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.3.0" />
 		<PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
 	</ItemGroup>

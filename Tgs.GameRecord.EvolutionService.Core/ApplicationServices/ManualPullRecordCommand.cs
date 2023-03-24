@@ -1,6 +1,6 @@
 ﻿namespace Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 
-public record GameHistoryManualCommand(
+public record ManualPullRecordCommand(
     Uri ApiUrl,
     string CasinoId,
     string GameHistoryApiToken,

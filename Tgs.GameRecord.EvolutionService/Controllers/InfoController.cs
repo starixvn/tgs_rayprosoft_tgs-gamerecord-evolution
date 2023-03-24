@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net.Sockets;
+using System.Net;
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
 using Tgs.GameRecord.EvolutionService.Core;
 
 namespace Tgs.GameRecord.EvolutionService.Controllers;
@@ -15,12 +18,24 @@ public class InfoController : ControllerBase
     }
 
     [HttpGet]
-    public object Get()
+    public async Task<object> GetAsync([FromServices] IWebHostEnvironment _hostingEnvironment)
     {
+        var hostName = Dns.GetHostName();
+        var hostEntry = await Dns.GetHostEntryAsync(hostName);
+        var hostIp = Array.Find(hostEntry.AddressList,
+            x => x.AddressFamily == AddressFamily.InterNetwork);
         var gameRecordInfo = _configuration.GetSection("GameRecordInfo").Get<GameRecordInfoOptions>();
+
         return new
         {
-            gameRecordInfo
+            Environment.MachineName,
+            HostName = hostName,
+            HostIp = hostIp?.ToString() ?? string.Empty,
+            Environment = _hostingEnvironment.EnvironmentName,
+            OsVersion = $"{Environment.OSVersion}",
+            Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(),
+            ProcessCount = Environment.ProcessorCount,
+            gameRecordInfo,
         };
     }
 }

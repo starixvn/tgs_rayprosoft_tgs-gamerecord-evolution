@@ -14,6 +14,8 @@ public interface IUtensil
         string gameExternalId,
         CancellationToken cancellationToken = default);
 
+    string GetGameProviderCode();
+
     ValueTask<Guid> GetGameProviderIdAsync(
         CancellationToken cancellationToken = default);
 

@@ -2,4 +2,4 @@
 
 namespace Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 
-public record GamePullRecordCommand(IEnumerable<GameHistoryRecord> Records);
+public record ScheduleHandleRecordCommand(GameHistoryRecord Record);

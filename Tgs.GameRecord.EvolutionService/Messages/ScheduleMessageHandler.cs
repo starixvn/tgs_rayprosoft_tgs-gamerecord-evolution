@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Tgs.GameRecord.EvolutionService.Core.DispatchServices;
+using Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 
@@ -9,11 +9,11 @@ namespace Tgs.GameRecord.EvolutionService.Messages;
 internal class ScheduleMessageHandler : IMessageHandler
 {
     private readonly ILogger<ScheduleMessageHandler> _logger;
-    private readonly ICommandService<ScheduleDispatchCommand> _service;
+    private readonly ICommandService<SchedulePullRecordCommand> _service;
 
     public ScheduleMessageHandler(
         ILogger<ScheduleMessageHandler> logger,
-        ICommandService<ScheduleDispatchCommand> service
+        ICommandService<SchedulePullRecordCommand> service
         )
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -31,11 +31,19 @@ internal class ScheduleMessageHandler : IMessageHandler
             return ValueTask.CompletedTask;
         }
 
+        var endDate = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\THH:mm:00K"), @"yyyy-MM-dd\THH:mm:ssK", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
+
+        var startDate = endDate.AddMinutes(7 * -1);
+
         _logger.LogInformation("Information Received:{LogInfo}", messageModel);
 
-        return _service.ExecuteAsync(new ScheduleDispatchCommand(
-            GameApiUrl: messageModel.GameApiUrl,
-            CasinoId: messageModel.CasinoId,
-            GameHistoryApiToken: messageModel.GameHistoryApiToken), cancellationToken);
+        return _service.ExecuteAsync(
+            command: new SchedulePullRecordCommand(
+                ApiUrl: messageModel.GameApiUrl,
+                CasinoId: messageModel.CasinoId,
+                GameHistoryApiToken: messageModel.GameHistoryApiToken,
+                StartDate: startDate,
+                EndDate: endDate),
+            cancellationToken: cancellationToken);
     }
 }
