@@ -1,5 +1,5 @@
-﻿using System.Net.Sockets;
-using System.Net;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Tgs.GameRecord.EvolutionService.Core;

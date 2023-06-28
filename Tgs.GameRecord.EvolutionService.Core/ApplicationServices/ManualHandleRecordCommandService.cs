@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Tgs.GameRounds.Work.Client;
+using Tgs.GameRounds.Work.Manual.Client;
 using Tgs.GameRounds.Work.Manual.Common.Protos;
 using Tgs.ServiceUtility;
 
