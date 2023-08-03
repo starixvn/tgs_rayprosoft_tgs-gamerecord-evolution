@@ -68,7 +68,7 @@ builder.Services.AddGameRecordCore(
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
-        options.Url = configuration.GetValue<Uri>("GameRecord:GameInterfaceClientBaseUrl")!;
+        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameInterfaceClientBaseUrl")!;
     });
 
 builder.Services

@@ -13,18 +13,18 @@ public class SchedulePullRecordCommandServiceUnitTest
     [Fact]
     public async Task Normal_Process()
     {
-        var fakeLogger = NullLogger<SchedulePullRecordCommandService>.Instance;
+        var fakeLogger = NullLogger<PullRecordCommandService>.Instance;
         var fakeClient = Substitute.For<IGameInterfaceEvolutionClient>();
-        var fakeService = Substitute.For<ICommandService<ScheduleHandleRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<HandleRecordCommand>>();
 
-        var command = new SchedulePullRecordCommand(
+        var command = new PullRecordCommand(
             ApiUrl: new("http://localhost/"),
             CasinoId: "casinoId",
             GameHistoryApiToken: "gameHistoryApiToken",
-            StartDate: DateTimeOffset.UtcNow.AddMinutes(-10),
-            EndDate: DateTimeOffset.UtcNow);
+            StartTime: DateTimeOffset.UtcNow.AddMinutes(-10),
+            EndTime: DateTimeOffset.UtcNow);
 
-        var service = new SchedulePullRecordCommandService(
+        var service = new PullRecordCommandService(
             fakeLogger,
             fakeClient,
             fakeService);
@@ -36,13 +36,14 @@ public class SchedulePullRecordCommandServiceUnitTest
 
         _ = await fakeClient
             .Received(1)
-            .GetGameHistoriesAsync(
-                apiUrl: Arg.Is(command.ApiUrl),
-                casinoId: Arg.Is(command.CasinoId),
-                gameHistoryApiToken: Arg.Is(command.GameHistoryApiToken),
-                startDate: Arg.Is(command.StartDate),
-                endDate: Arg.Is(command.EndDate),
-                cancellationToken: Arg.Any<CancellationToken>())
+            .GameRecordAsync(
+            apiUrl: Arg.Is(command.ApiUrl),
+            casinoId: Arg.Is(command.CasinoId),
+            gameHistoryApiToken: Arg.Is(command.GameHistoryApiToken),
+            startTime: Arg.Is(command.StartTime),
+            endTime: Arg.Is(command.EndTime),
+            cancellationToken: Arg.Any<CancellationToken>())
+            .ToArrayAsync()
             .ConfigureAwait(false);
     }
 }

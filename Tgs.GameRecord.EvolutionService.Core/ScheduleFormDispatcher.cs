@@ -12,22 +12,19 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
 {
     private readonly IGameRoundsScheduleClient _clinet;
     private readonly ILogger<ScheduleFormDispatcher> _logger;
-    private readonly ICommandService<ManualPullRecordCommand> _manualService;
     private readonly IScheduleFormLock _scheduleFormLock;
-    private readonly ICommandService<SchedulePullRecordCommand> _service;
+    private readonly ICommandService<PullRecordCommand> _service;
 
     public ScheduleFormDispatcher(
         ILogger<ScheduleFormDispatcher> logger,
         IGameRoundsScheduleClient clinet,
         IScheduleFormLock scheduleFormLock,
-        ICommandService<SchedulePullRecordCommand> service,
-        ICommandService<ManualPullRecordCommand> manualService)
+        ICommandService<PullRecordCommand> service)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _clinet = clinet ?? throw new ArgumentNullException(nameof(clinet));
         _scheduleFormLock = scheduleFormLock ?? throw new ArgumentNullException(nameof(scheduleFormLock));
         _service = service ?? throw new ArgumentNullException(nameof(service));
-        _manualService = manualService ?? throw new ArgumentNullException(nameof(manualService));
     }
 
     public async ValueTask ExecuteAsync(
@@ -74,42 +71,25 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
             var parameter = JsonSerializer.Deserialize<EvolutionParameter>(scheduleForm.Parameters)
                 ?? throw new Exception($"This game provider ({gameProviderCode}) scheduling form parameter is null. ({id})");
 
-            if (scheduleForm.Source == ScheduleFormSource.Schedule)
-            {
-                var command = new SchedulePullRecordCommand(
-                        ApiUrl: new Uri(parameter.ApiUrl),
-                        CasinoId: parameter.CasinoId,
-                        GameHistoryApiToken: parameter.GameHistoryApiToken,
-                        StartDate: parameter.StartTime.ToDateTimeOffset(),
-                        EndDate: parameter.EndTime.ToDateTimeOffset());
 
-                await _service
-                     .ExecuteAsync(
-                         command: command,
-                         cancellationToken: cancellationToken)
-                     .ConfigureAwait(false);
-            }
-            else
-            {
-                var command = new ManualPullRecordCommand(
-                        ApiUrl: new Uri(parameter.ApiUrl),
-                        CasinoId: parameter.CasinoId,
-                        GameHistoryApiToken: parameter.GameHistoryApiToken,
-                        StartDate: parameter.StartTime.ToDateTimeOffset(),
-                        EndDate: parameter.EndTime.ToDateTimeOffset());
+            var command = new PullRecordCommand(
+                ApiUrl: new Uri(parameter.ApiUrl),
+                CasinoId: parameter.CasinoId,
+                GameHistoryApiToken: parameter.GameHistoryApiToken,
+                StartTime: parameter.StartTime.ToDateTimeOffset(),
+                EndTime: parameter.EndTime.ToDateTimeOffset());
 
-                await _manualService
-                     .ExecuteAsync(
-                         command: command,
-                         cancellationToken: cancellationToken)
-                     .ConfigureAwait(false);
-            }
+            await _service
+                .ExecuteAsync(
+                command: command,
+                cancellationToken: cancellationToken)
+                 .ConfigureAwait(false);
 
             await _clinet
                 .ScheduleFormCompleteAsync(
-                    gameProviderCode: gameProviderCode,
-                    id: id,
-                    cancellationToken: cancellationToken)
+                gameProviderCode: gameProviderCode,
+                id: id,
+                cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -118,19 +98,19 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
 
             await _clinet
                 .ScheduleFormFaileAsync(
-                    gameProviderCode: gameProviderCode,
-                    id: id,
-                    status: ex.Message,
-                    cancellationToken: cancellationToken)
+                gameProviderCode: gameProviderCode,
+                id: id,
+                status: ex.Message,
+                cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
         finally
         {
             _ = await _scheduleFormLock
-                 .UnlockAsync(
-                     gameProviderCode: gameProviderCode,
-                     id: id)
-                 .ConfigureAwait(false);
+                .UnlockAsync(
+                gameProviderCode: gameProviderCode,
+                id: id)
+                .ConfigureAwait(false);
         }
     }
 }

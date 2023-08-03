@@ -2,4 +2,4 @@
 
 namespace Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 
-public record ScheduleHandleRecordCommand(GameHistoryRecord Record);
+public record HandleRecordCommand(GameRecordInfo Record);

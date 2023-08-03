@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
         Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
         Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
         Action<GameRoundsScheduleClientOptions, IServiceProvider> gameRoundsScheduleClientOptions,
-        Action<GameInterfaceEvoOptions, IServiceProvider> gameInterfaceEvoOptions)
+        Action<GameInterfaceEvolutionClientOptions, IServiceProvider> gameInterfaceEvolutionClientOptions)
         => services
             .AddOptions<RedisOptions>()
             .Configure(redisDBconfigure)
@@ -29,9 +29,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<RedisConnectionManager>()
             .AddGameCommandClient(gameCommandClientOptions)
             .AddGameRoundsScheduleClient(gameRoundsScheduleClientOptions)
-            .AddGameInterfaceEvoClient(gameInterfaceEvoOptions)
+            .AddGameInterfaceEvoClient(gameInterfaceEvolutionClientOptions)
             .AddGameRoundsWorkClient()
-            .AddGameRoundsWorkManualClient()
             .AddSingleton<IScheduleFormDispatcher, ScheduleFormDispatcher>()
             .AddSingleton<IScheduleFormLock>(sp => ActivatorUtilities.CreateInstance<ScheduleFormLock>(sp, sp.GetRequiredService<RedisConnectionManager>().Database))
             .AddTransient<IUtensil>(sp => ActivatorUtilities.CreateInstance<UtensilRepository>(sp, TimeSpan.FromHours(1)));

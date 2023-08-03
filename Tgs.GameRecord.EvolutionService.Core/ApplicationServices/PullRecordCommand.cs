@@ -1,8 +1,8 @@
 ﻿namespace Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 
-public record ManualPullRecordCommand(
+public record PullRecordCommand(
     Uri ApiUrl,
     string CasinoId,
     string GameHistoryApiToken,
-    DateTimeOffset StartDate,
-    DateTimeOffset EndDate);
+    DateTimeOffset StartTime,
+    DateTimeOffset EndTime);

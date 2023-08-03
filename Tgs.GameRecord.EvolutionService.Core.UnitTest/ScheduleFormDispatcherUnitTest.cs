@@ -18,8 +18,7 @@ public class ScheduleFormDispatcherUnitTest
         var fakelogger = NullLogger<ScheduleFormDispatcher>.Instance;
         var fakeClient = Substitute.For<IGameRoundsScheduleClient>();
         var fakeScheduleFormLock = Substitute.For<IScheduleFormLock>();
-        var fakeService = Substitute.For<ICommandService<SchedulePullRecordCommand>>();
-        var fakeManualService = Substitute.For<ICommandService<ManualPullRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<PullRecordCommand>>();
 
         var gameProviderCode = "EVOTF";
         var id = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -59,8 +58,7 @@ public class ScheduleFormDispatcherUnitTest
             fakelogger,
             fakeClient,
             fakeScheduleFormLock,
-            fakeService,
-            fakeManualService);
+            fakeService);
 
         await service
             .ExecuteAsync(
@@ -78,14 +76,7 @@ public class ScheduleFormDispatcherUnitTest
         await fakeService
             .Received(0)
             .ExecuteAsync(
-                command: Arg.Any<SchedulePullRecordCommand>(),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
-
-        await fakeManualService
-            .Received(0)
-            .ExecuteAsync(
-                command: Arg.Any<ManualPullRecordCommand>(),
+                command: Arg.Any<PullRecordCommand>(),
                 cancellationToken: Arg.Any<CancellationToken>())
             .ConfigureAwait(false);
     }
@@ -96,8 +87,7 @@ public class ScheduleFormDispatcherUnitTest
         var fakelogger = NullLogger<ScheduleFormDispatcher>.Instance;
         var fakeClient = Substitute.For<IGameRoundsScheduleClient>();
         var fakeScheduleFormLock = Substitute.For<IScheduleFormLock>();
-        var fakeService = Substitute.For<ICommandService<SchedulePullRecordCommand>>();
-        var fakeManualService = Substitute.For<ICommandService<ManualPullRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<PullRecordCommand>>();
 
         var gameProviderCode = "EVOTF";
         var id = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -137,8 +127,7 @@ public class ScheduleFormDispatcherUnitTest
             fakelogger,
             fakeClient,
             fakeScheduleFormLock,
-            fakeService,
-            fakeManualService);
+            fakeService);
 
         await service
             .ExecuteAsync(
@@ -156,92 +145,7 @@ public class ScheduleFormDispatcherUnitTest
         await fakeService
             .Received(1)
             .ExecuteAsync(
-                command: Arg.Any<SchedulePullRecordCommand>(),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
-
-        await fakeManualService
-            .Received(0)
-            .ExecuteAsync(
-                command: Arg.Any<ManualPullRecordCommand>(),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
-    }
-
-    [Fact]
-    public async Task Normal_Process_Manual()
-    {
-        var fakelogger = NullLogger<ScheduleFormDispatcher>.Instance;
-        var fakeClient = Substitute.For<IGameRoundsScheduleClient>();
-        var fakeScheduleFormLock = Substitute.For<IScheduleFormLock>();
-        var fakeService = Substitute.For<ICommandService<SchedulePullRecordCommand>>();
-        var fakeManualService = Substitute.For<ICommandService<ManualPullRecordCommand>>();
-
-        var gameProviderCode = "EVOTF";
-        var id = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var parameters = new EvolutionParameter
-        {
-            ApiUrl = "https://babylonpega2.uat1.evo-test.com/",
-            CasinoId = "babylonpega20001",
-            GameHistoryApiToken = "test123",
-            StartTime = DateTimeOffset.Parse("2023-03-09T11:00:00+00:00").ToTimestamp(),
-            EndTime = DateTimeOffset.Parse("2023-03-09T12:00:00+00:00").ToTimestamp(),
-        };
-        var scheduleForm = new ScheduleFormReply
-        {
-            Id = id,
-            GameProviderId = Guid.NewGuid(),
-            GameProviderCode = gameProviderCode,
-            Name = "Config",
-            Subject = "gp.gamerecord.scheduleform.evotf.queued",
-            Parameters = JsonSerializer.Serialize(parameters),
-            Source = ScheduleFormSource.Manual,
-            State = ScheduleFormState.Queued,
-            Status = $"{ScheduleFormState.Queued}..."
-        };
-        _ = fakeClient
-            .ScheduleFormGetAsync(
-                gameProviderCode: Arg.Is(gameProviderCode),
-                id: Arg.Is(id),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .Returns(scheduleForm);
-
-        _ = fakeScheduleFormLock
-            .LockingAsync(
-                gameProviderCode: Arg.Is(gameProviderCode),
-                id: Arg.Is(id))
-            .Returns(true);
-        var service = new ScheduleFormDispatcher(
-            fakelogger,
-            fakeClient,
-            fakeScheduleFormLock,
-            fakeService,
-            fakeManualService);
-
-        await service
-            .ExecuteAsync(
-                gameProviderCode,
-                id);
-
-        await fakeClient
-            .Received(1)
-            .ScheduleFormProcessingAsync(
-                gameProviderCode: Arg.Is(gameProviderCode),
-                id: Arg.Is(id),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
-
-        await fakeService
-            .Received(0)
-            .ExecuteAsync(
-                command: Arg.Any<SchedulePullRecordCommand>(),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
-
-        await fakeManualService
-            .Received(1)
-            .ExecuteAsync(
-                command: Arg.Any<ManualPullRecordCommand>(),
+                command: Arg.Any<PullRecordCommand>(),
                 cancellationToken: Arg.Any<CancellationToken>())
             .ConfigureAwait(false);
     }
@@ -252,8 +156,7 @@ public class ScheduleFormDispatcherUnitTest
         var fakelogger = NullLogger<ScheduleFormDispatcher>.Instance;
         var fakeClient = Substitute.For<IGameRoundsScheduleClient>();
         var fakeScheduleFormLock = Substitute.For<IScheduleFormLock>();
-        var fakeService = Substitute.For<ICommandService<SchedulePullRecordCommand>>();
-        var fakeManualService = Substitute.For<ICommandService<ManualPullRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<PullRecordCommand>>();
 
         var gameProviderCode = "EVOTF";
         var id = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -288,8 +191,7 @@ public class ScheduleFormDispatcherUnitTest
             fakelogger,
             fakeClient,
             fakeScheduleFormLock,
-            fakeService,
-            fakeManualService);
+            fakeService);
 
         await service
             .ExecuteAsync(
@@ -314,14 +216,7 @@ public class ScheduleFormDispatcherUnitTest
         await fakeService
             .Received(0)
             .ExecuteAsync(
-                command: Arg.Any<SchedulePullRecordCommand>(),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
-
-        await fakeManualService
-            .Received(0)
-            .ExecuteAsync(
-                command: Arg.Any<ManualPullRecordCommand>(),
+                command: Arg.Any<PullRecordCommand>(),
                 cancellationToken: Arg.Any<CancellationToken>())
             .ConfigureAwait(false);
     }
