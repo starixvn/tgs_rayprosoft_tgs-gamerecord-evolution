@@ -8,7 +8,7 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.EvolutionService.Core.UnitTest.ApplicationServices;
 
-public class SchedulePullRecordCommandServiceUnitTest
+public class PullRecordCommandServiceUnitTest
 {
     [Fact]
     public async Task Normal_Process()

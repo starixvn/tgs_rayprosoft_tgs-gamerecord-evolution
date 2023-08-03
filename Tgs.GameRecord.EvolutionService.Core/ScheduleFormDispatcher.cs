@@ -63,14 +63,13 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
         {
             await _clinet
                 .ScheduleFormProcessingAsync(
-                    gameProviderCode: gameProviderCode,
-                    id: id,
-                    cancellationToken: cancellationToken)
+                gameProviderCode: gameProviderCode,
+                id: id,
+                cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             var parameter = JsonSerializer.Deserialize<EvolutionParameter>(scheduleForm.Parameters)
                 ?? throw new Exception($"This game provider ({gameProviderCode}) scheduling form parameter is null. ({id})");
-
 
             var command = new PullRecordCommand(
                 ApiUrl: new Uri(parameter.ApiUrl),

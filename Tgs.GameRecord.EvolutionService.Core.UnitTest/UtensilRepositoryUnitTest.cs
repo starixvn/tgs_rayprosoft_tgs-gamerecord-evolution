@@ -14,10 +14,11 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "EVOTF",
-            IntervalMinutes = 3,
-            IntervalMinutesMax = 60,
-            IntervalMinutesMinimum = 1,
-            LockMinute = 1.5
+            GameProviderConfiguration= "EVOTFConfiguration",
+            GameProviderHangfire= "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
         });
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
@@ -69,10 +70,11 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "EVOTF",
-            IntervalMinutes = 3,
-            IntervalMinutesMax = 60,
-            IntervalMinutesMinimum = 1,
-            LockMinute = 1.5
+            GameProviderConfiguration = "EVOTFConfiguration",
+            GameProviderHangfire = "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
         });
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
@@ -124,10 +126,11 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "EVOTF",
-            IntervalMinutes = 3,
-            IntervalMinutesMax = 60,
-            IntervalMinutesMinimum = 1,
-            LockMinute = 1.5
+            GameProviderConfiguration = "EVOTFConfiguration",
+            GameProviderHangfire = "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
         });
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
@@ -173,10 +176,11 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "EVOTF",
-            IntervalMinutes = 3,
-            IntervalMinutesMax = 60,
-            IntervalMinutesMinimum = 1,
-            LockMinute = 1.5
+            GameProviderConfiguration = "EVOTFConfiguration",
+            GameProviderHangfire = "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
         });
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
@@ -214,10 +218,11 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "EVOTF",
-            IntervalMinutes = 3,
-            IntervalMinutesMax = 60,
-            IntervalMinutesMinimum = 1,
-            LockMinute = 1.5
+            GameProviderConfiguration = "EVOTFConfiguration",
+            GameProviderHangfire = "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
         });
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();

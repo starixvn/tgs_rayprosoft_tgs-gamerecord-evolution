@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using Tgs.GameInterface.EvolutionService.Protos;
 using Tgs.GameRecord.EvolutionService.Core;
 using Tgs.GameRecord.EvolutionService.Core.ApplicationServices;
 using Tgs.MessageQueue;
@@ -50,11 +49,11 @@ internal class ScheduleMessageHandler : IMessageHandler
         _logger.LogInformation("Information Received:{LogInfo}", messageModel);
 
         var command = new PullRecordCommand(
-                ApiUrl: messageModel.GameApiUrl,
-                CasinoId: messageModel.CasinoId,
-                GameHistoryApiToken: messageModel.GameHistoryApiToken,
-                StartTime: startDate,
-                EndTime: endDate);
+            ApiUrl: messageModel.GameApiUrl,
+            CasinoId: messageModel.CasinoId,
+            GameHistoryApiToken: messageModel.GameHistoryApiToken,
+            StartTime: startDate,
+            EndTime: endDate);
 
         return _service.ExecuteAsync(
             command: command,

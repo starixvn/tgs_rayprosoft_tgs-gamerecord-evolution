@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Tgs.GameRounds.Work.Client;
+﻿using Tgs.GameRounds.Work.Client;
 using Tgs.GameRounds.Work.Common.Protos;
 using Tgs.ServiceUtility;
 
@@ -85,6 +84,5 @@ internal class HandleRecordCommandService : ICommandService<HandleRecordCommand>
                 additionalData: command.Record.AdditionalData,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
-
     }
 }
