@@ -60,29 +60,29 @@ internal class HandleRecordCommandService : ICommandService<HandleRecordCommand>
             : winLoss > 0 ? RoundClientStatus.Win : RoundClientStatus.Loss;
 
         await _client
-            .RoundBidding(
-                gameProviderId: gameProviderId,
-                gameProviderCode: gameProviderCode,
-                externalRoundId: command.Record.ExternalRoundId,
-                gameId: gameId,
-                externalGameId: command.Record.ExternalGameId,
-                playerCode: playerModel!.PlayerCode,
-                walletId: playerModel!.DefaultWalletId,
-                currencyCode: playerModel!.DefaultWalletCurrencyCode,
-                brandId: playerModel!.BrandId,
-                gameProviderConfigurationId: gameProviderConfigurationId,
-                status: status,
-                clientStatus: clientStatus,
-                externalCreatedOn: externalCreatedOn,
-                externalClosedOn: externalClosedOn,
-                bet: bet,
-                validBet: validBet,
-                settle: settle,
-                commission: commission,
-                turnover: turnover,
-                playerWinLoss: winLoss,
-                additionalData: command.Record.AdditionalData,
-                cancellationToken: cancellationToken)
+            .RoundExchangeRateBiddingAsync(
+            gameProviderId: gameProviderId,
+            gameProviderCode: gameProviderCode,
+            externalRoundId: command.Record.ExternalRoundId,
+            gameId: gameId,
+            externalGameId: command.Record.ExternalGameId,
+            playerCode: playerModel!.PlayerCode,
+            walletId: playerModel!.DefaultWalletId,
+            currencyCode: playerModel!.DefaultWalletCurrencyCode,
+            brandId: playerModel!.BrandId,
+            gameProviderConfigurationId: gameProviderConfigurationId,
+            status: status,
+            clientStatus: clientStatus,
+            externalCreatedOn: externalCreatedOn,
+            externalClosedOn: externalClosedOn,
+            bet: bet,
+            validBet: validBet,
+            settle: settle,
+            commission: commission,
+            turnover: turnover,
+            playerWinLoss: winLoss,
+            additionalData: command.Record.AdditionalData,
+            cancellationToken: cancellationToken)
             .ConfigureAwait(false);
     }
 }
