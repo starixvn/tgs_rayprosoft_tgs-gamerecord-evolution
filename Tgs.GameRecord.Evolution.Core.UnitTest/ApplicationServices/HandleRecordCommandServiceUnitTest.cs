@@ -1,12 +1,12 @@
 ﻿using System.Text.Json.Nodes;
 using Google.Protobuf.WellKnownTypes;
+using Microsoft.Extensions.Options;
 using NSubstitute;
-using Tgs.GameCommand.Common;
 using Tgs.GameInterface.EvolutionService.Protos;
 using Tgs.GameRecord.Evolution.Core;
 using Tgs.GameRecord.Evolution.Core.ApplicationServices;
-using Tgs.GameRounds.Work.Client;
-using Tgs.GameRounds.Work.Common.Protos;
+using Tgs.GameRecord.Handle.Client;
+using Tgs.GameRecord.Handle.Common.Protos;
 
 namespace Tgs.GameRecord.EvolutionService.Core.UnitTest.ApplicationServices;
 
@@ -15,8 +15,16 @@ public class HandleRecordCommandServiceUnitTest
     [Fact]
     public async Task Cancelled()
     {
-        var fakeUtensil = Substitute.For<IUtensil>();
-        var fakeClient = Substitute.For<IGameRoundsWorkClient>();
+        var gameRecordInfo = Options.Create(new GameRecordInfoOptions
+        {
+            GameProviderCode = "EVOTF",
+            GameProviderConfiguration = "EVOTFConfiguration",
+            GameProviderHangfire = "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
+        });
+        var fakeClient = Substitute.For<IGameRecordHandleClient>();
 
         var command = new HandleRecordCommand(
             Record: new GameRecordInfo
@@ -41,52 +49,8 @@ public class HandleRecordCommandServiceUnitTest
                 }.ToJsonString()
             });
 
-        var gameProviderId = Guid.NewGuid();
-        _ = fakeUtensil
-             .GetGameProviderIdAsync(
-             cancellationToken: Arg.Any<CancellationToken>())
-             .Returns(gameProviderId);
-
-        var gameProviderCode = "KY";
-        _ = fakeUtensil
-           .GetGameProviderCode()
-           .Returns(gameProviderCode);
-
-        var player = new PlayerInfo(
-            ResellerId: Guid.NewGuid(),
-            ResellerCode: "GPI",
-            LicenseeId: Guid.NewGuid(),
-            LicenseeCode: "GPI",
-            BrandId: Guid.NewGuid(),
-            BrandCode: "GPI",
-            PlayerCode: "4ucmqplxb029",
-            Username: "4ucmqplxb029",
-            DefaultWalletId: Guid.NewGuid(),
-            DefaultWalletCurrencyCode: "CNY");
-        _ = fakeUtensil
-           .GetPlayerAsync(
-           playerCode: Arg.Is(command.Record.PlayerCode),
-           cancellationToken: Arg.Any<CancellationToken>())
-           .Returns(player);
-
-        var gameId = 2300001;
-        _ = fakeUtensil
-           .GetGameIdAsync(
-           gameProviderId: Arg.Is(gameProviderId),
-           gameExternalId: Arg.Is(command.Record.ExternalGameId),
-           cancellationToken: Arg.Any<CancellationToken>())
-           .Returns(gameId);
-
-        var gameProviderConfigurationId = Guid.NewGuid();
-        _ = fakeUtensil
-            .GetBrandGameProviderConfigurationIdAsync(
-            brandId: Arg.Is(player.BrandId),
-            gameProviderId: Arg.Is(gameProviderId),
-            cancellationToken: Arg.Any<CancellationToken>())
-            .Returns(gameProviderConfigurationId);
-
         var service = new HandleRecordCommandService(
-            fakeUtensil,
+            gameRecordInfo,
             fakeClient);
 
         await service
@@ -96,19 +60,13 @@ public class HandleRecordCommandServiceUnitTest
 
         _ = fakeClient
             .Received(1)
-            .RoundExchangeRateBiddingAsync(
-            gameProviderId: Arg.Is(gameProviderId),
-            gameProviderCode: Arg.Is(gameProviderCode),
+            .MessageAsync(
+            gameProviderCode: Arg.Is(gameRecordInfo.Value.GameProviderCode),
             externalRoundId: Arg.Is(command.Record.ExternalRoundId),
-            gameId: Arg.Is(gameId),
             externalGameId: Arg.Is(command.Record.ExternalGameId),
             playerCode: Arg.Is(command.Record.PlayerCode),
-            walletId: Arg.Is(player!.DefaultWalletId),
-            currencyCode: Arg.Is(player!.DefaultWalletCurrencyCode),
-            brandId: Arg.Is(player!.BrandId),
-            gameProviderConfigurationId: Arg.Is(gameProviderConfigurationId),
-            status: Arg.Is(RoundStatus.Closed),
-            clientStatus: Arg.Is(RoundClientStatus.Void),
+            status: Arg.Is(GameRecordStatus.Closed),
+            clientStatus: Arg.Is(GameRecordClientStatus.Void),
             externalCreatedOn: Arg.Is(command.Record.ExternalCreatedOn.ToDateTimeOffset()),
             externalClosedOn: Arg.Is((DateTimeOffset?)command.Record.ExternalClosedOn.ToDateTimeOffset()),
             bet: Arg.Is(command.Record.Bet.ToDecimal().GetValueOrDefault(0)),
@@ -124,8 +82,16 @@ public class HandleRecordCommandServiceUnitTest
     [Fact]
     public async Task Loss()
     {
-        var fakeUtensil = Substitute.For<IUtensil>();
-        var fakeClient = Substitute.For<IGameRoundsWorkClient>();
+        var gameRecordInfo = Options.Create(new GameRecordInfoOptions
+        {
+            GameProviderCode = "EVOTF",
+            GameProviderConfiguration = "EVOTFConfiguration",
+            GameProviderHangfire = "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
+        });
+        var fakeClient = Substitute.For<IGameRecordHandleClient>();
 
         var command = new HandleRecordCommand(
             Record: new GameRecordInfo
@@ -150,52 +116,8 @@ public class HandleRecordCommandServiceUnitTest
                 }.ToJsonString()
             });
 
-        var gameProviderId = Guid.NewGuid();
-        _ = fakeUtensil
-             .GetGameProviderIdAsync(
-             cancellationToken: Arg.Any<CancellationToken>())
-             .Returns(gameProviderId);
-
-        var gameProviderCode = "KY";
-        _ = fakeUtensil
-           .GetGameProviderCode()
-           .Returns(gameProviderCode);
-
-        var player = new PlayerInfo(
-            ResellerId: Guid.NewGuid(),
-            ResellerCode: "GPI",
-            LicenseeId: Guid.NewGuid(),
-            LicenseeCode: "GPI",
-            BrandId: Guid.NewGuid(),
-            BrandCode: "GPI",
-            PlayerCode: "4ucmqplxb029",
-            Username: "4ucmqplxb029",
-            DefaultWalletId: Guid.NewGuid(),
-            DefaultWalletCurrencyCode: "CNY");
-        _ = fakeUtensil
-           .GetPlayerAsync(
-           playerCode: Arg.Is(command.Record.PlayerCode),
-           cancellationToken: Arg.Any<CancellationToken>())
-           .Returns(player);
-
-        var gameId = 2300001;
-        _ = fakeUtensil
-           .GetGameIdAsync(
-           gameProviderId: Arg.Is(gameProviderId),
-           gameExternalId: Arg.Is(command.Record.ExternalGameId),
-           cancellationToken: Arg.Any<CancellationToken>())
-           .Returns(gameId);
-
-        var gameProviderConfigurationId = Guid.NewGuid();
-        _ = fakeUtensil
-            .GetBrandGameProviderConfigurationIdAsync(
-            brandId: Arg.Is(player.BrandId),
-            gameProviderId: Arg.Is(gameProviderId),
-            cancellationToken: Arg.Any<CancellationToken>())
-            .Returns(gameProviderConfigurationId);
-
         var service = new HandleRecordCommandService(
-            fakeUtensil,
+            gameRecordInfo,
             fakeClient);
 
         await service
@@ -205,19 +127,13 @@ public class HandleRecordCommandServiceUnitTest
 
         _ = fakeClient
             .Received(1)
-            .RoundExchangeRateBiddingAsync(
-            gameProviderId: Arg.Is(gameProviderId),
-            gameProviderCode: Arg.Is(gameProviderCode),
+            .MessageAsync(
+            gameProviderCode: Arg.Is(gameRecordInfo.Value.GameProviderCode),
             externalRoundId: Arg.Is(command.Record.ExternalRoundId),
-            gameId: Arg.Is(gameId),
             externalGameId: Arg.Is(command.Record.ExternalGameId),
             playerCode: Arg.Is(command.Record.PlayerCode),
-            walletId: Arg.Is(player!.DefaultWalletId),
-            currencyCode: Arg.Is(player!.DefaultWalletCurrencyCode),
-            brandId: Arg.Is(player!.BrandId),
-            gameProviderConfigurationId: Arg.Is(gameProviderConfigurationId),
-            status: Arg.Is(RoundStatus.Closed),
-            clientStatus: Arg.Is(RoundClientStatus.Loss),
+            status: Arg.Is(GameRecordStatus.Closed),
+            clientStatus: Arg.Is(GameRecordClientStatus.Loss),
             externalCreatedOn: Arg.Is(command.Record.ExternalCreatedOn.ToDateTimeOffset()),
             externalClosedOn: Arg.Is((DateTimeOffset?)command.Record.ExternalClosedOn.ToDateTimeOffset()),
             bet: Arg.Is(command.Record.Bet.ToDecimal().GetValueOrDefault(0)),
@@ -233,8 +149,16 @@ public class HandleRecordCommandServiceUnitTest
     [Fact]
     public async Task Void()
     {
-        var fakeUtensil = Substitute.For<IUtensil>();
-        var fakeClient = Substitute.For<IGameRoundsWorkClient>();
+        var gameRecordInfo = Options.Create(new GameRecordInfoOptions
+        {
+            GameProviderCode = "EVOTF",
+            GameProviderConfiguration = "EVOTFConfiguration",
+            GameProviderHangfire = "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
+        });
+        var fakeClient = Substitute.For<IGameRecordHandleClient>();
 
         var command = new HandleRecordCommand(
             Record: new GameRecordInfo
@@ -259,52 +183,8 @@ public class HandleRecordCommandServiceUnitTest
                 }.ToJsonString()
             });
 
-        var gameProviderId = Guid.NewGuid();
-        _ = fakeUtensil
-             .GetGameProviderIdAsync(
-             cancellationToken: Arg.Any<CancellationToken>())
-             .Returns(gameProviderId);
-
-        var gameProviderCode = "KY";
-        _ = fakeUtensil
-           .GetGameProviderCode()
-           .Returns(gameProviderCode);
-
-        var player = new PlayerInfo(
-            ResellerId: Guid.NewGuid(),
-            ResellerCode: "GPI",
-            LicenseeId: Guid.NewGuid(),
-            LicenseeCode: "GPI",
-            BrandId: Guid.NewGuid(),
-            BrandCode: "GPI",
-            PlayerCode: "4ucmqplxb029",
-            Username: "4ucmqplxb029",
-            DefaultWalletId: Guid.NewGuid(),
-            DefaultWalletCurrencyCode: "CNY");
-        _ = fakeUtensil
-           .GetPlayerAsync(
-           playerCode: Arg.Is(command.Record.PlayerCode),
-           cancellationToken: Arg.Any<CancellationToken>())
-           .Returns(player);
-
-        var gameId = 2300001;
-        _ = fakeUtensil
-           .GetGameIdAsync(
-           gameProviderId: Arg.Is(gameProviderId),
-           gameExternalId: Arg.Is(command.Record.ExternalGameId),
-           cancellationToken: Arg.Any<CancellationToken>())
-           .Returns(gameId);
-
-        var gameProviderConfigurationId = Guid.NewGuid();
-        _ = fakeUtensil
-            .GetBrandGameProviderConfigurationIdAsync(
-            brandId: Arg.Is(player.BrandId),
-            gameProviderId: Arg.Is(gameProviderId),
-            cancellationToken: Arg.Any<CancellationToken>())
-            .Returns(gameProviderConfigurationId);
-
         var service = new HandleRecordCommandService(
-            fakeUtensil,
+            gameRecordInfo,
             fakeClient);
 
         await service
@@ -314,19 +194,13 @@ public class HandleRecordCommandServiceUnitTest
 
         _ = fakeClient
             .Received(1)
-            .RoundExchangeRateBiddingAsync(
-            gameProviderId: Arg.Is(gameProviderId),
-            gameProviderCode: Arg.Is(gameProviderCode),
+            .MessageAsync(
+            gameProviderCode: Arg.Is(gameRecordInfo.Value.GameProviderCode),
             externalRoundId: Arg.Is(command.Record.ExternalRoundId),
-            gameId: Arg.Is(gameId),
             externalGameId: Arg.Is(command.Record.ExternalGameId),
             playerCode: Arg.Is(command.Record.PlayerCode),
-            walletId: Arg.Is(player!.DefaultWalletId),
-            currencyCode: Arg.Is(player!.DefaultWalletCurrencyCode),
-            brandId: Arg.Is(player!.BrandId),
-            gameProviderConfigurationId: Arg.Is(gameProviderConfigurationId),
-            status: Arg.Is(RoundStatus.Closed),
-            clientStatus: Arg.Is(RoundClientStatus.Void),
+            status: Arg.Is(GameRecordStatus.Closed),
+            clientStatus: Arg.Is(GameRecordClientStatus.Void),
             externalCreatedOn: Arg.Is(command.Record.ExternalCreatedOn.ToDateTimeOffset()),
             externalClosedOn: Arg.Is((DateTimeOffset?)command.Record.ExternalClosedOn.ToDateTimeOffset()),
             bet: Arg.Is(command.Record.Bet.ToDecimal().GetValueOrDefault(0)),
@@ -342,8 +216,16 @@ public class HandleRecordCommandServiceUnitTest
     [Fact]
     public async Task Win()
     {
-        var fakeUtensil = Substitute.For<IUtensil>();
-        var fakeClient = Substitute.For<IGameRoundsWorkClient>();
+        var gameRecordInfo = Options.Create(new GameRecordInfoOptions
+        {
+            GameProviderCode = "EVOTF",
+            GameProviderConfiguration = "EVOTFConfiguration",
+            GameProviderHangfire = "evotf-schedule:hangfire:",
+            IntervalMinutes = 10,
+            IntervalMinutesMax = 1440,
+            IntervalMinutesMinimum = 1
+        });
+        var fakeClient = Substitute.For<IGameRecordHandleClient>();
 
         var command = new HandleRecordCommand(
             Record: new GameRecordInfo
@@ -368,52 +250,8 @@ public class HandleRecordCommandServiceUnitTest
                 }.ToJsonString()
             });
 
-        var gameProviderId = Guid.NewGuid();
-        _ = fakeUtensil
-             .GetGameProviderIdAsync(
-             cancellationToken: Arg.Any<CancellationToken>())
-             .Returns(gameProviderId);
-
-        var gameProviderCode = "KY";
-        _ = fakeUtensil
-           .GetGameProviderCode()
-           .Returns(gameProviderCode);
-
-        var player = new PlayerInfo(
-            ResellerId: Guid.NewGuid(),
-            ResellerCode: "GPI",
-            LicenseeId: Guid.NewGuid(),
-            LicenseeCode: "GPI",
-            BrandId: Guid.NewGuid(),
-            BrandCode: "GPI",
-            PlayerCode: "4ucmqplxb029",
-            Username: "4ucmqplxb029",
-            DefaultWalletId: Guid.NewGuid(),
-            DefaultWalletCurrencyCode: "CNY");
-        _ = fakeUtensil
-           .GetPlayerAsync(
-           playerCode: Arg.Is(command.Record.PlayerCode),
-           cancellationToken: Arg.Any<CancellationToken>())
-           .Returns(player);
-
-        var gameId = 2300001;
-        _ = fakeUtensil
-           .GetGameIdAsync(
-           gameProviderId: Arg.Is(gameProviderId),
-           gameExternalId: Arg.Is(command.Record.ExternalGameId),
-           cancellationToken: Arg.Any<CancellationToken>())
-           .Returns(gameId);
-
-        var gameProviderConfigurationId = Guid.NewGuid();
-        _ = fakeUtensil
-            .GetBrandGameProviderConfigurationIdAsync(
-            brandId: Arg.Is(player.BrandId),
-            gameProviderId: Arg.Is(gameProviderId),
-            cancellationToken: Arg.Any<CancellationToken>())
-            .Returns(gameProviderConfigurationId);
-
         var service = new HandleRecordCommandService(
-            fakeUtensil,
+            gameRecordInfo,
             fakeClient);
 
         await service
@@ -423,19 +261,13 @@ public class HandleRecordCommandServiceUnitTest
 
         _ = fakeClient
             .Received(1)
-            .RoundExchangeRateBiddingAsync(
-            gameProviderId: Arg.Is(gameProviderId),
-            gameProviderCode: Arg.Is(gameProviderCode),
+            .MessageAsync(
+            gameProviderCode: Arg.Is(gameRecordInfo.Value.GameProviderCode),
             externalRoundId: Arg.Is(command.Record.ExternalRoundId),
-            gameId: Arg.Is(gameId),
             externalGameId: Arg.Is(command.Record.ExternalGameId),
             playerCode: Arg.Is(command.Record.PlayerCode),
-            walletId: Arg.Is(player!.DefaultWalletId),
-            currencyCode: Arg.Is(player!.DefaultWalletCurrencyCode),
-            brandId: Arg.Is(player!.BrandId),
-            gameProviderConfigurationId: Arg.Is(gameProviderConfigurationId),
-            status: Arg.Is(RoundStatus.Closed),
-            clientStatus: Arg.Is(RoundClientStatus.Win),
+            status: Arg.Is(GameRecordStatus.Closed),
+            clientStatus: Arg.Is(GameRecordClientStatus.Win),
             externalCreatedOn: Arg.Is(command.Record.ExternalCreatedOn.ToDateTimeOffset()),
             externalClosedOn: Arg.Is((DateTimeOffset?)command.Record.ExternalClosedOn.ToDateTimeOffset()),
             bet: Arg.Is(command.Record.Bet.ToDecimal().GetValueOrDefault(0)),
