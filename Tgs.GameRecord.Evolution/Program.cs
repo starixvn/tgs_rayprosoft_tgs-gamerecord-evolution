@@ -108,8 +108,7 @@ builder.Services
              var configuration = sp.GetRequiredService<IConfiguration>();
              options.Url = configuration.GetConnectionString("Nats")!;
          })
-         .AddHandler<ScheduleMessageHandler>(subject: "gp.gamerecord.schedule.evotf", group: "gp.gamerecord.schedule")
-         .AddHandler<ScheduleFormQueuedMessageHandler>(subject: "gp.gamerecord.scheduleform.evotf.queued", "gp.gamerecord.scheduleform.evotf");
+         .AddHandler<ScheduleFormQueuedMessageHandler>(subject: "gp.gamerecord.scheduleform.evotf.queued", "gp.gamerecord.scheduleform.evotf.queued");
      })
      .ClearAllExchanges()
      .AddNatsGlobPatternExchange("*");
