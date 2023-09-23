@@ -28,10 +28,7 @@ public class PullRecordCommandServiceUnitTest
             fakeClient,
             fakeService);
 
-        await service
-            .ExecuteAsync(
-                command: command)
-            .ConfigureAwait(false);
+        await service.ExecuteAsync(command: command);
 
         _ = await fakeClient
             .Received(1)
@@ -42,7 +39,6 @@ public class PullRecordCommandServiceUnitTest
             startTime: Arg.Is(command.StartTime),
             endTime: Arg.Is(command.EndTime),
             cancellationToken: Arg.Any<CancellationToken>())
-            .ToArrayAsync()
-            .ConfigureAwait(false);
+            .ToArrayAsync();
     }
 }

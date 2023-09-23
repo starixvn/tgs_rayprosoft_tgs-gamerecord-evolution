@@ -18,9 +18,8 @@ internal class HandleRecordCommandService : ICommandService<HandleRecordCommand>
         _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
-    public async ValueTask ExecuteAsync(HandleRecordCommand command, CancellationToken cancellationToken = default)
+    public ValueTask ExecuteAsync(HandleRecordCommand command, CancellationToken cancellationToken = default)
     {
-        var status = GameRecordStatus.Closed;
         var externalCreatedOn = command.Record.ExternalCreatedOn.ToDateTimeOffset();
         var externalClosedOn = command.Record.ExternalClosedOn.ToDateTimeOffset();
         var bet = command.Record.Bet.ToDecimal().GetValueOrDefault(0);
@@ -29,28 +28,39 @@ internal class HandleRecordCommandService : ICommandService<HandleRecordCommand>
         var commission = command.Record.Commission.ToDecimal().GetValueOrDefault(0);
         var turnover = command.Record.Turnover.ToDecimal().GetValueOrDefault(0);
         var winLoss = command.Record.WinLoss.ToDecimal().GetValueOrDefault(0);
-        var clientStatus = command.Record.IsVoid || command.Record.IsCancelled
-            ? GameRecordClientStatus.Void
-            : winLoss > 0 ? GameRecordClientStatus.Win : GameRecordClientStatus.Loss;
+        var wagerState =
+            command.Record.IsVoid
+            ? WagerStates.Void
+            : command.Record.IsCancelled
+            ? WagerStates.Refund
+            : winLoss > 0
+            ? WagerStates.Win
+            : WagerStates.Lose;
 
-        await _client
+        return _client
             .MessageAsync(
             gameProviderCode: _gameRecordInfo.GameProviderCode,
-            externalRoundId: command.Record.ExternalRoundId,
-            externalGameId: command.Record.ExternalGameId,
             playerCode: command.Record.PlayerCode,
-            status: status,
-            clientStatus: clientStatus,
+            wagerState: wagerState,
+            wagerType: WagerTypes.Normal,
+            freeGameState: FreeGameStates.None,
+            gambleState: GambleStates.None,
+            cashoutState: CashoutStates.None,
+            resettleState: ResettleStates.None,
+            externalRoundId: command.Record.ExternalRoundId,
+            externalWagerId: command.Record.ExternalRoundId,
+            externalGameId: command.Record.ExternalGameId,
             externalCreatedOn: externalCreatedOn,
             externalClosedOn: externalClosedOn,
+            externalPayoffOn: externalClosedOn,
+            externalResettleOn: DateTimeOffset.UnixEpoch,
             bet: bet,
             validBet: validBet,
             settle: settle,
             commission: commission,
             turnover: turnover,
-            playerWinLoss: winLoss,
+            winLoss: winLoss,
             additionalData: command.Record.AdditionalData,
-            cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+            cancellationToken: cancellationToken);
     }
 }

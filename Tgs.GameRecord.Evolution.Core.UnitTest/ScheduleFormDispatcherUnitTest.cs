@@ -69,17 +69,15 @@ public class ScheduleFormDispatcherUnitTest
         await fakeClient
             .Received(0)
             .ScheduleFormProcessingAsync(
-                gameProviderCode: Arg.Is(gameProviderCode),
-                id: Arg.Is(id),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
+            gameProviderCode: Arg.Is(gameProviderCode),
+            id: Arg.Is(id),
+            cancellationToken: Arg.Any<CancellationToken>());
 
         await fakeService
             .Received(0)
             .ExecuteAsync(
-                command: Arg.Any<PullRecordCommand>(),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
+            command: Arg.Any<PullRecordCommand>(),
+            cancellationToken: Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -138,17 +136,15 @@ public class ScheduleFormDispatcherUnitTest
         await fakeClient
             .Received(1)
             .ScheduleFormProcessingAsync(
-                gameProviderCode: Arg.Is(gameProviderCode),
-                id: Arg.Is(id),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
+            gameProviderCode: Arg.Is(gameProviderCode),
+            id: Arg.Is(id),
+            cancellationToken: Arg.Any<CancellationToken>());
 
         await fakeService
             .Received(1)
             .ExecuteAsync(
-                command: Arg.Any<PullRecordCommand>(),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
+            command: Arg.Any<PullRecordCommand>(),
+            cancellationToken: Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -202,23 +198,20 @@ public class ScheduleFormDispatcherUnitTest
         _ = await fakeScheduleFormLock
             .Received(0)
             .LockingAsync(
-                gameProviderCode: Arg.Is(gameProviderCode),
-                id: Arg.Is(id))
-            .ConfigureAwait(false);
+            gameProviderCode: Arg.Is(gameProviderCode),
+            id: Arg.Is(id));
 
         await fakeClient
             .Received(0)
             .ScheduleFormProcessingAsync(
-                gameProviderCode: Arg.Is(gameProviderCode),
-                id: Arg.Is(id),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
+            gameProviderCode: Arg.Is(gameProviderCode),
+            id: Arg.Is(id),
+            cancellationToken: Arg.Any<CancellationToken>());
 
         await fakeService
             .Received(0)
             .ExecuteAsync(
-                command: Arg.Any<PullRecordCommand>(),
-                cancellationToken: Arg.Any<CancellationToken>())
-            .ConfigureAwait(false);
+            command: Arg.Any<PullRecordCommand>(),
+            cancellationToken: Arg.Any<CancellationToken>());
     }
 }
