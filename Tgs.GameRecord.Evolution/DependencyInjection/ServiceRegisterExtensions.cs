@@ -2,7 +2,7 @@
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class GameRecordRegisterExtensions
+public static class ServiceRegisterExtensions
 {
     public static async Task<WebApplication> UseHangfireRegisterAsync(this WebApplication app)
     {

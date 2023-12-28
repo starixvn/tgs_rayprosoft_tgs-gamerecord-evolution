@@ -5,25 +5,14 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.Evolution.Core.ApplicationServices;
 
-internal class PullRecordCommandService : ICommandService<PullRecordCommand>
+internal class PullRecordCommandService(
+    ILogger<PullRecordCommandService> logger,
+    IGameInterfaceEvolutionClient client,
+    ICommandService<HandleRecordCommand> service) : ICommandService<PullRecordCommand>
 {
-    private readonly IGameInterfaceEvolutionClient _client;
-    private readonly ILogger<PullRecordCommandService> _logger;
-    private readonly ICommandService<HandleRecordCommand> _service;
-
-    public PullRecordCommandService(
-        ILogger<PullRecordCommandService> logger,
-        IGameInterfaceEvolutionClient client,
-        ICommandService<HandleRecordCommand> service)
-    {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _service = service ?? throw new ArgumentNullException(nameof(service));
-    }
-
     public async ValueTask ExecuteAsync(PullRecordCommand command, CancellationToken cancellationToken = default)
     {
-        var gameRecordInfos = await _client
+        var gameRecordInfos = await client
             .GameRecordAsync(
             apiUrl: command.ApiUrl,
             casinoId: command.CasinoId,
@@ -35,7 +24,7 @@ internal class PullRecordCommandService : ICommandService<PullRecordCommand>
             .ConfigureAwait(false)
             ?? Enumerable.Empty<GameRecordInfo>();
 
-        _logger.LogInformation("LogOn:{logOn} | Request:{request} | Response:{response}",
+        logger.LogInformation("LogOn:{logOn} | Request:{request} | Response:{response}",
             DateTime.UtcNow.ToString("O"),
             command,
             gameRecordInfos);
@@ -49,7 +38,7 @@ internal class PullRecordCommandService : ICommandService<PullRecordCommand>
         {
             try
             {
-                await _service
+                await service
                     .ExecuteAsync(
                     command: new(gameRecordInfo),
                     cancellationToken: cancellationToken)
@@ -57,7 +46,7 @@ internal class PullRecordCommandService : ICommandService<PullRecordCommand>
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "遊戲紀錄處理發生例外.({gameRecord})", gameRecordInfo);
+                logger.LogError(ex, "遊戲紀錄處理發生例外.({gameRecord})", gameRecordInfo);
             }
         }
     }

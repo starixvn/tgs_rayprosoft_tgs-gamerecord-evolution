@@ -51,7 +51,7 @@ app: {{ include "game-gamerecord-evolution.name" . }}
 tgs.kind: game
 tgs.game.kind: gamerecord
 tgs.gamerecord.kind: service
-tgs.gameprovider.kind: evotf
+tgs.gameprovider.kind: evo
 {{- end }}
 
 {{/*

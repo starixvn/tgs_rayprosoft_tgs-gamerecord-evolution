@@ -5,7 +5,7 @@ using Tgs.GameInterface.EvolutionService.Client;
 using Tgs.GameRecord.Evolution.Core.ApplicationServices;
 using Tgs.ServiceUtility;
 
-namespace Tgs.GameRecord.EvolutionService.Core.UnitTest.ApplicationServices;
+namespace Tgs.GameRecord.Evolution.Core.UnitTest.ApplicationServices;
 
 public class PullRecordCommandServiceUnitTest
 {

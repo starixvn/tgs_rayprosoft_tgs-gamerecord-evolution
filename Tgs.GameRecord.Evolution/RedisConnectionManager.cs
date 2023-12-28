@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using StackExchange.Redis;
+using Tgs.GameRecord.Evolution.Core;
+using Tgs.GameRecord.Evolution;
 
-namespace Tgs.GameRecord.Evolution.Core;
+namespace Tgs.GameRecord.Evolution;
 
 internal class RedisConnectionManager : IDisposable
 {

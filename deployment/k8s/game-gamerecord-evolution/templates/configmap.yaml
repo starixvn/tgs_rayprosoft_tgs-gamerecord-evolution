@@ -1,20 +1,29 @@
-﻿apiVersion: v1
+apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-{{ include "game-gamerecord-evolution.name" . }}
+  name: configmap-{{ include "game-gamerecord-vr.name" . }}
   namespace: {{ .Values.namespace }}
 data:
   appsettings.json: |
     {
       "Logging": {
-         "LogLevel": {
-          "Default": "Warning"
-          }
+        "LogLevel": {
+          "Default": "Warning",
+          "Tgs.GameRecord.Evolution.Messages": "Information"
+        }
+      },
+      "GameRecordInfo": {
+        "GameProviderCode": "EVOTF",
+        "GameProviderConfiguration": "EVOTFConfiguration",
+        "HangfirePrefix": "evotf-schedule:hangfire:",
+        "HangfireLocking": "evotf-locking:hangfire:",
+        "IntervalMinutes": 10,
+        "IntervalMinutesMax": 1440,
+        "IntervalMinutesMinimum": 1
       },
       "GameRecord": {
-         "GameCommandClientBaseUrl": "http://game-gamecommand/",
-         "GameRoundsScheduleClientBaseUrl": "http://game-gamerounds-schedule:9090/",
-         "GameInterfaceClientBaseUrl": "http://game-gameinterface-evolution-service:9090/"
+        "GameCommandClientBaseUrl": "http://game-gamecommand/",
+        "GameInterfaceClientBaseUrl": "http://game-gameinterface-evolution-service:9090/"
       }
     }
   otel-collector-config.yaml: |

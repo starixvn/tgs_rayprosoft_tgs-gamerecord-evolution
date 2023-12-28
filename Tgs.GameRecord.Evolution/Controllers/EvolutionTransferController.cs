@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Tgs.GameRecord.Evolution.Common;
 using Tgs.GameRecord.Evolution.Core.ApplicationServices;
 using Tgs.ServiceUtility;
 
@@ -29,9 +30,14 @@ public class EvolutionTransferController : ControllerBase
     [HttpPost]
     public ValueTask ExecuteAsync(
         [FromServices] ICommandService<PullRecordCommand> service,
-        PullRecordCommand source)
+        EvolutionGameRecordMessage source)
         => service
         .ExecuteAsync(
-            command: source,
+            command: new PullRecordCommand(
+                source.ApiUrl,
+                source.CasinoId,
+                source.GameHistoryApiToken,
+                source.StartTime,
+                source.EndTime),
             cancellationToken: HttpContext.RequestAborted);
 }

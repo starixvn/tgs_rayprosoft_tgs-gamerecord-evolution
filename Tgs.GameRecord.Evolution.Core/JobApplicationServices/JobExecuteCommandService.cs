@@ -1,25 +1,27 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Tgs.GameRounds.Schedule.Client;
-using Tgs.GameRounds.Schedule.Protos;
+using Tgs.GameRecord.Evolution.Common;
 using Tgs.ServiceUtility;
+using Valhalla.MessageQueue;
 
 namespace Tgs.GameRecord.Evolution.Core.JobApplicationServices;
 
 internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
 {
-    private readonly IGameRoundsScheduleClient _client;
     private readonly GameRecordInfoOptions _gameRecordInfo;
     private readonly double _intervalMinutes;
     private readonly ILogger<JobExecuteCommandService> _logger;
+    private readonly IMessageSender _messageSender;
 
     public JobExecuteCommandService(
         ILogger<JobExecuteCommandService> logger,
         IOptions<GameRecordInfoOptions> options,
-        IGameRoundsScheduleClient client)
+        IMessageSender messageSender)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _client = client ?? throw new ArgumentNullException(nameof(client));
+        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         _gameRecordInfo = options.Value;
         _intervalMinutes = _gameRecordInfo.IntervalMinutesMax < _gameRecordInfo.IntervalMinutes
             ? _gameRecordInfo.IntervalMinutesMax
@@ -44,17 +46,10 @@ internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
 
         _logger.LogInformation("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
 
-        return _client
-            .Evolution_ScheduleFormQueuedAsync(
-            gameProviderCode: command.GameProviderCode,
-            name: command.Name,
-            subject: "gp.gamerecord.scheduleform.evotf.queued",
-            source: ScheduleFormSource.Schedule,
-            apiUrl: parameters.ApiUrl,
-            casinoId: parameters.CasinoId,
-            gameHistoryApiToken: parameters.GameHistoryApiToken,
-            startTime: parameters.StartTime,
-            endTime: parameters.EndTime,
+        return _messageSender
+            .PublishAsync(
+            subject: EvolutionNatsConst.SchedulePublish,
+            data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parameters)),
             cancellationToken: cancellationToken);
     }
 }

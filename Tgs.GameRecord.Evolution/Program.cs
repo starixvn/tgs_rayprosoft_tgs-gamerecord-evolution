@@ -4,19 +4,17 @@ using Hangfire;
 using Hangfire.Console;
 using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc;
-using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.GameRecord.Evolution;
+using Tgs.GameRecord.Evolution.Common;
 using Tgs.GameRecord.Evolution.Core;
 using Tgs.GameRecord.Evolution.Messages;
 
-var builder = WebApplication.CreateBuilder(args);
+var filterInstrumentations = new[] { "html", "ico", "png", "jpg" };
 
-builder.Configuration
-    .AddJsonFile("/config/appsettings.json", true)
-    .AddEnvironmentVariables();
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging
     .AddOpenTelemetry(options =>
@@ -63,7 +61,7 @@ builder
         var connectionString = builder.Configuration.GetConnectionString("redis")!;
         var options = new RedisStorageOptions
         {
-            Prefix = _gameRecordInfo.GameProviderHangfire
+            Prefix = _gameRecordInfo.HangfirePrefix
         };
         _ = config
         .UseRedisStorage(connectionString, options)
@@ -71,7 +69,7 @@ builder
     })
     .AddHangfireServer();
 
-builder.Services.AddGameRecordCore(
+builder.Services.AddGameRecord(
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
@@ -90,11 +88,6 @@ builder.Services.AddGameRecordCore(
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
-        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameRoundsScheduleClientBaseUrl")!;
-    },
-    (options, sp) =>
-    {
-        var configuration = sp.GetRequiredService<IConfiguration>();
         options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameInterfaceClientBaseUrl")!;
     });
 
@@ -108,7 +101,8 @@ builder.Services
              var configuration = sp.GetRequiredService<IConfiguration>();
              options.Url = configuration.GetConnectionString("Nats")!;
          })
-         .AddHandler<ScheduleFormQueuedMessageHandler>(subject: "gp.gamerecord.scheduleform.evotf.queued", "gp.gamerecord.scheduleform.evotf.queued");
+        .AddHandler<GameRecordMessageHandler>(EvolutionNatsConst.SchedulePublish, EvolutionNatsConst.SchedulePublish)
+        .AddHandler<GameRecordMessageHandler>(EvolutionNatsConst.ManualPublish, EvolutionNatsConst.ManualPublish);
      })
      .ClearAllExchanges()
      .AddNatsGlobPatternExchange("*");
@@ -121,7 +115,14 @@ builder.Services
         .AddSource("Tgs.*")
         .AddSource("TGS.*")
         .AddSource("Valhalla.*")
-        .AddAspNetCoreInstrumentation()
+        .AddAspNetCoreInstrumentation(options => options.Filter =
+            httpContext => !httpContext.Request.Path.HasValue
+            || !httpContext.Request.Path.StartsWithSegments("/swagger")
+            && !httpContext.Request.Path.StartsWithSegments("/healthz")
+            && !httpContext.Request.Path.StartsWithSegments("/profiler/")
+            && !httpContext.Request.Path.StartsWithSegments("/hangfire")
+            && !httpContext.Request.Path.StartsWithSegments("/metrics")
+            && !filterInstrumentations.Any(ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
         .AddHttpClientInstrumentation()
         .AddGrpcClientInstrumentation()
         .AddGrpcCoreInstrumentation()
@@ -129,20 +130,11 @@ builder.Services
         .AddOtlpExporter())
     .WithMetrics(meterBuiler => meterBuiler
     .SetResourceBuilder(ResourceBuilder.CreateDefault()
-    .AddEnvironmentVariableDetector())
-    .AddRuntimeInstrumentation()
-    .AddAspNetCoreInstrumentation()
-    .AddOtlpExporter())
+        .AddEnvironmentVariableDetector())
+        .AddRuntimeInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddOtlpExporter())
     .Services
-    .Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
-        httpContext => !httpContext.Request.Path.HasValue
-            || !httpContext.Request.Path.StartsWithSegments("/swagger")
-            && !httpContext.Request.Path.StartsWithSegments("/healthz")
-            && !httpContext.Request.Path.StartsWithSegments("/profiler/")
-            && !httpContext.Request.Path.StartsWithSegments("/hangfire")
-            && !httpContext.Request.Path.StartsWithSegments("/metrics")
-            && !new[] { "html", "ico", "png", "jpg" }.Any(
-                ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
     .AddInterceptionService()
     .AddServiceUtiltiyInterceptors();
 

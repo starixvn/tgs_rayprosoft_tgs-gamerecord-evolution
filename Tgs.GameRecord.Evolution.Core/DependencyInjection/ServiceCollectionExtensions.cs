@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
+using StackExchange.Redis;
 using Tgs.GameCommand.Client;
 using Tgs.GameInterface.EvolutionService.Client;
 using Tgs.GameRecord.Evolution.Core;
-using Tgs.GameRounds.Schedule.Client;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -10,27 +10,17 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddGameRecordCore(
         this IServiceCollection services,
-        Action<RedisOptions, IServiceProvider> redisDBconfigure,
-        Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
         Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
-        Action<GameRoundsScheduleClientOptions, IServiceProvider> gameRoundsScheduleClientOptions,
-        Action<GameInterfaceEvolutionClientOptions, IServiceProvider> gameInterfaceEvolutionClientOptions)
+        Action<GameInterfaceEvolutionClientOptions, IServiceProvider> gameInterfaceEvolutionClientOptions,
+        Func<IServiceProvider, IDatabase> redisDatabaseResolver)
         => services
-        .AddOptions<RedisOptions>()
-        .Configure(redisDBconfigure)
-        .Services
-        .AddOptions<GameRecordInfoOptions>()
-        .Configure(gameRecordInfoOptions)
-        .Services
+
         .RegisterAllServiceUtilityTypes(
             Assembly.GetExecutingAssembly(),
             ServiceLifetime.Transient)
-        .AddSingleton<RedisConnectionManager>()
         .AddGameCommandClient(gameCommandClientOptions)
-        .AddGameRoundsScheduleClient(gameRoundsScheduleClientOptions)
         .AddGameInterfaceEvoClient(gameInterfaceEvolutionClientOptions)
         .AddGameRecordHandleClient()
-        .AddSingleton<IScheduleFormDispatcher, ScheduleFormDispatcher>()
-        .AddSingleton<IScheduleFormLock>(sp => ActivatorUtilities.CreateInstance<ScheduleFormLock>(sp, sp.GetRequiredService<RedisConnectionManager>().Database))
-        .AddTransient<IHangfireUtensil, HangfireUtensil>();
+        .AddTransient<IHangfireUtensil, HangfireUtensil>()
+        .AddTransient<IHangfireLock>(sp => ActivatorUtilities.CreateInstance<HangfireLock>(sp, redisDatabaseResolver(sp)));
 }
