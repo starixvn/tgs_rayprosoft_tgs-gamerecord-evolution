@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-{{ include "game-gamerecord-vr.name" . }}
+  name: configmap-{{ include "game-gamerecord-evolution.name" . }}
   namespace: {{ .Values.namespace }}
 data:
   appsettings.json: |
