@@ -12,18 +12,18 @@ data:
           "Tgs.GameRecord.Evolution.Messages": "Information"
         }
       },
+      "GameRecord": {
+        "GameCommandClientBaseUrl": "http://game-gamecommand/",
+        "GameInterfaceClientBaseUrl": "dns:///game-gameinterface-evolution-service:9090/"
+      },
       "GameRecordInfo": {
         "GameProviderCode": "EVOTF",
         "GameProviderConfiguration": "EVOTFConfiguration",
-        "HangfirePrefix": "evotf-schedule:hangfire:",
-        "HangfireLocking": "evotf-locking:hangfire:",
+        "HangfirePrefix": "gamerecord-evotf-hangfire:",
+        "HangfireLocking": "gamerecord-evotf-locking:",
         "IntervalMinutes": 10,
         "IntervalMinutesMax": 1440,
         "IntervalMinutesMinimum": 1
-      },
-      "GameRecord": {
-        "GameCommandClientBaseUrl": "http://game-gamecommand/",
-        "GameInterfaceClientBaseUrl": "http://game-gameinterface-evolution-service:9090/"
       }
     }
   otel-collector-config.yaml: |

@@ -1,7 +1,6 @@
 ﻿using System.Net.Mime;
 using System.Text.Json.Serialization;
 using Hangfire;
-using Hangfire.Console;
 using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc;
 using OpenTelemetry.Metrics;
@@ -31,7 +30,6 @@ builder.Logging
     });
 
 // Add services to the container.
-
 builder.Services
     .AddRouting(options => options.LowercaseUrls = true)
     .AddControllers(options =>
@@ -43,6 +41,7 @@ builder.Services
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -51,21 +50,20 @@ builder.Services.AddSwaggerGen(c =>
     foreach (var xmlFileName in xmlFileNames) c.IncludeXmlComments(xmlFileName);
 });
 
-var _gameRecordInfo = builder.Configuration.GetSection("GameRecordInfo").Get<GameRecordInfoOptions>()!;
 // Learn more about configuring Hangfire
-builder
-    .Services
-    .AddHangfire((sp, config) =>
+builder.Services.AddHangfire(
+    (sp, config) =>
     {
         var systemConfig = sp.GetRequiredService<IConfiguration>();
         var connectionString = builder.Configuration.GetConnectionString("redis")!;
+        var gameRecordInfoOptions = builder.Configuration.GetSection("GameRecordInfo").Get<GameRecordInfoOptions>()!;
         var options = new RedisStorageOptions
         {
-            Prefix = _gameRecordInfo.HangfirePrefix
+            Prefix = gameRecordInfoOptions.HangfirePrefix
         };
         _ = config
         .UseRedisStorage(connectionString, options)
-        .UseConsole();
+        .WithJobExpirationTimeout(TimeSpan.FromMinutes(30));
     })
     .AddHangfireServer();
 

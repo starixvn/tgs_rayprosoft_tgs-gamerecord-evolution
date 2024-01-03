@@ -19,17 +19,17 @@ internal class JobInitCommandService(
 
     public async ValueTask ExecuteAsync(JobInitCommand command, CancellationToken cancellationToken = default)
     {
-        if (!await hangfireLock.LockingAsync(
-            application: typeof(JobInitCommandService).Name,
-            cancellationToken: cancellationToken)
-            .ConfigureAwait(false))
-        {
-            logger.LogWarning("LogOn:{logOn} Message:進行初始化動作，已經有其他服務進行", DateTime.Now.ToString("o"));
-            return;
-        }
-
         try
         {
+            if (!await hangfireLock.LockingAsync(
+                application: typeof(JobInitCommandService).Name,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false))
+            {
+                logger.LogWarning("LogOn:{logOn} Message:進行初始化動作，已經有其他服務進行", DateTime.Now.ToString("o"));
+                return;
+            }
+
             using (var connection = JobStorage.Current.GetConnection())
             {
                 foreach (var recurringJob in connection.GetRecurringJobs())
