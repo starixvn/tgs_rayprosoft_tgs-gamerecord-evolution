@@ -10,70 +10,85 @@ using Tgs.ServiceUtility;
 namespace Tgs.GameRecord.Evolution.Core.JobApplicationServices;
 
 internal class JobInitCommandService(
-    ILogger<JobInitCommandService> logger,
-    IOptions<GameRecordInfoOptions> options,
-    IHangfireLock hangfireLock,
-    IGameCommandClient client) : ICommandService<JobInitCommand>
+	ILogger<JobInitCommandService> logger,
+	IOptions<GameRecordInfoOptions> options,
+	IHangfireLock hangfireLock,
+	IGameCommandClient client) : ICommandService<JobInitCommand>
 {
-    private readonly GameRecordInfoOptions _gameRecordInfo = options.Value;
+	private readonly GameRecordInfoOptions _gameRecordInfo = options.Value;
 
-    public async ValueTask ExecuteAsync(JobInitCommand command, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            if (!await hangfireLock.LockingAsync(
-                application: typeof(JobInitCommandService).Name,
-                cancellationToken: cancellationToken)
-                .ConfigureAwait(false))
-            {
-                logger.LogWarning("LogOn:{logOn} Message:進行初始化動作，已經有其他服務進行", DateTime.Now.ToString("o"));
-                return;
-            }
+	private readonly RecurringJobOptions _recurringJobOptions = new()
+	{
+		TimeZone = TimeZoneInfo.FindSystemTimeZoneById(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "China Standard Time" : "Asia/Shanghai")
+	};
 
-            using (var connection = JobStorage.Current.GetConnection())
-            {
-                foreach (var recurringJob in connection.GetRecurringJobs())
-                {
-                    RecurringJob.RemoveIfExists(recurringJob.Id);
-                }
-            }
+	public async ValueTask ExecuteAsync(JobInitCommand command, CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			if (!await hangfireLock.LockingAsync(
+				application: typeof(JobInitCommandService).Name,
+				cancellationToken: cancellationToken)
+				.ConfigureAwait(false))
+			{
+				logger.LogWarning("LogOn:{logOn} Message:進行初始化動作，已經有其他服務進行", DateTime.Now.ToString("o"));
+				return;
+			}
 
-            var settingConfiguration = await client
-                .SettingGetConfigurationStringAsync(
-                key: _gameRecordInfo.GameProviderConfiguration,
-                cancellationToken: cancellationToken)
-                .ConfigureAwait(false)
-                ?? throw new Exception($"This game product setting does not exist.({_gameRecordInfo.GameProviderConfiguration})");
+			using (var connection = JobStorage.Current.GetConnection())
+			{
+				foreach (var recurringJob in connection.GetRecurringJobs())
+				{
+					RecurringJob.RemoveIfExists(recurringJob.Id);
+				}
+			}
 
-            var settingConfigurationJson = JsonNode.Parse(settingConfiguration)
-                ?? throw new Exception($"This game product setting does not exist.({_gameRecordInfo.GameProviderConfiguration})");
+			var settingConfiguration = await client
+				.SettingGetConfigurationStringAsync(
+				key: _gameRecordInfo.GameProviderConfiguration,
+				cancellationToken: cancellationToken)
+				.ConfigureAwait(false)
+				?? throw new Exception($"This game product setting does not exist.({_gameRecordInfo.GameProviderConfiguration})");
 
-            var jobExecuteCommand = new JobExecuteCommand(
-                GameProviderCode: _gameRecordInfo.GameProviderCode,
-                Name: $"{_gameRecordInfo.GameProviderConfiguration}",
-                ApiUrl: new Uri(settingConfigurationJson["ApiUrl"]!.ToString()),
-                CasinoId: settingConfigurationJson["CasinoID"]!.ToString(),
-                GameHistoryApiToken: settingConfigurationJson["GameHistoryApiToken"]!.ToString());
+			var settingConfigurationJson = JsonNode.Parse(settingConfiguration)
+				?? throw new Exception($"This game product setting does not exist.({_gameRecordInfo.GameProviderConfiguration})");
 
-            RecurringJob.AddOrUpdate<IHangfireUtensil>(
-                recurringJobId: _gameRecordInfo.GameProviderConfiguration,
-                methodCall: service => service.JobExecuteAsync(jobExecuteCommand),
-                cronExpression: Cron.Minutely(),
-                options: new RecurringJobOptions()
-                {
-                    TimeZone = TimeZoneInfo.FindSystemTimeZoneById(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "China Standard Time" : "Asia/Shanghai")
-                });
+			var jobExecuteCommand = new JobExecuteCommand(
+				GameProviderCode: _gameRecordInfo.GameProviderCode,
+				Name: $"{_gameRecordInfo.GameProviderConfiguration}",
+				ApiUrl: new Uri(settingConfigurationJson["ApiUrl"]!.ToString()),
+				CasinoId: settingConfigurationJson["CasinoID"]!.ToString(),
+				GameHistoryApiToken: settingConfigurationJson["GameHistoryApiToken"]!.ToString());
 
-            //初始化強制第一次處理
-            _ = BackgroundJob.Enqueue<IHangfireUtensil>(service => service.JobExecuteAsync(jobExecuteCommand));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "LogOn:{logOn} Message:遊戲廠商初始化排程發生例外", DateTime.Now.ToString("o"));
-        }
-        finally
-        {
-            _ = BackgroundJob.Schedule<IHangfireUtensil>(service => service.JobCheckAsync(), TimeSpan.FromMinutes(1));
-        }
-    }
+			var jobExecute30MinsCommand = new JobExecute30MinsCommand(
+				GameProviderCode: _gameRecordInfo.GameProviderCode,
+				Name: $"{_gameRecordInfo.GameProviderConfiguration}",
+				ApiUrl: new Uri(settingConfigurationJson["ApiUrl"]!.ToString()),
+				CasinoId: settingConfigurationJson["CasinoID"]!.ToString(),
+				GameHistoryApiToken: settingConfigurationJson["GameHistoryApiToken"]!.ToString());
+
+			RecurringJob.AddOrUpdate<IHangfireUtensil>(
+				recurringJobId: _gameRecordInfo.GameProviderConfiguration,
+				methodCall: service => service.JobExecuteAsync(jobExecuteCommand),
+				cronExpression: Cron.Minutely(),
+				options: _recurringJobOptions);
+
+			RecurringJob.AddOrUpdate<IHangfireUtensil>(
+				recurringJobId: string.Concat(_gameRecordInfo.GameProviderConfiguration, "|30Mins"),
+				methodCall: service => service.JobExecute30MinsAsync(jobExecute30MinsCommand),
+				cronExpression: Cron.Minutely(),
+				options: _recurringJobOptions);
+
+			//初始化強制第一次處理
+			_ = BackgroundJob.Enqueue<IHangfireUtensil>(service => service.JobExecuteAsync(jobExecuteCommand));
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, "LogOn:{logOn} Message:遊戲廠商初始化排程發生例外", DateTime.Now.ToString("o"));
+		}
+		finally
+		{
+			_ = BackgroundJob.Schedule<IHangfireUtensil>(service => service.JobCheckAsync(), TimeSpan.FromMinutes(1));
+		}
+	}
 }

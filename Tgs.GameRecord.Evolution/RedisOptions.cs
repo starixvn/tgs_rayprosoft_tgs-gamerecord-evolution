@@ -1,7 +1,6 @@
-﻿using Tgs.GameRecord.Evolution.Core;
-namespace Tgs.GameRecord.Evolution;
+﻿namespace Tgs.GameRecord.Evolution;
 
 public record RedisOptions
 {
-    public string ConnectionString { get; set; } = "localhost";
+	public string ConnectionString { get; set; } = "localhost";
 }

@@ -4,9 +4,11 @@ namespace Tgs.GameRecord.Evolution.Core;
 
 public interface IHangfireUtensil
 {
-    public Task JobCheckAsync();
+	public Task JobCheckAsync();
 
-    public Task JobExecuteAsync(JobExecuteCommand source);
+	public Task JobExecuteAsync(JobExecuteCommand source);
 
-    public Task JobInitAsync();
+	public Task JobExecute30MinsAsync(JobExecute30MinsCommand source);
+
+	public Task JobInitAsync();
 }
