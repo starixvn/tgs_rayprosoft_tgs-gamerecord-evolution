@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
 		.RegisterAllServiceUtilityTypes(
 			Assembly.GetExecutingAssembly(),
 			ServiceLifetime.Transient)
+		.AddSingleton(TimeProvider.System)
 		.AddGameCommandClient(gameCommandClientOptions)
 		.AddGameInterfaceEvoClient(gameInterfaceEvolutionClientOptions)
 		.AddGameRecordHandleClient()

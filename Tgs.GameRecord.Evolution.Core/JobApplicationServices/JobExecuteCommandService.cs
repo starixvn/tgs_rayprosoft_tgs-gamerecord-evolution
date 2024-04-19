@@ -13,14 +13,17 @@ internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
 	private readonly GameRecordInfoOptions _gameRecordInfo;
 	private readonly double _intervalMinutes;
 	private readonly ILogger<JobExecuteCommandService> _logger;
+	private readonly TimeProvider _timeProvider;
 	private readonly IMessageSender _messageSender;
 
 	public JobExecuteCommandService(
 		ILogger<JobExecuteCommandService> logger,
 		IOptions<GameRecordInfoOptions> options,
+		TimeProvider timeProvider,
 		IMessageSender messageSender)
 	{
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+		_timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 		_messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
 		_gameRecordInfo = options.Value;
 		_intervalMinutes = _gameRecordInfo.IntervalMinutesMax < _gameRecordInfo.IntervalMinutes
@@ -32,7 +35,8 @@ internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
 
 	public ValueTask ExecuteAsync(JobExecuteCommand command, CancellationToken cancellationToken = default)
 	{
-		var endTime = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\THH:mm:00K"), @"yyyy-MM-dd\THH:mm:ssK", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
+		var currentTime = _timeProvider.GetUtcNow();
+		var endTime = new DateTimeOffset(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour, currentTime.Minute, 00, currentTime.Offset).AddMinutes(-1);
 		var startTime = endTime.AddMinutes(_intervalMinutes * -1);
 
 		var parameters = new

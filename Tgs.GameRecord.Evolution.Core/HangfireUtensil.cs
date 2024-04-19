@@ -11,8 +11,10 @@ internal class HangfireUtensil(
 {
 	public Task JobCheckAsync()
 		=> jobCheckService.ExecuteAsync(new()).AsTask();
+
 	public Task JobExecute30MinsAsync(JobExecute30MinsCommand source)
 		 => jobExecute30MinsService.ExecuteAsync(source).AsTask();
+
 	public Task JobExecuteAsync(JobExecuteCommand source)
 		=> jobExecuteService.ExecuteAsync(source).AsTask();
 
