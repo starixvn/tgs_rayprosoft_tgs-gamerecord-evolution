@@ -1,18 +1,20 @@
 ﻿using System.Text.Json.Nodes;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Tgs.GameRecord.Handle.Client;
-using Tgs.GameRecord.Handle.Common.Protos;
 using Tgs.ServiceUtility;
+using Valhalla.MessageQueue;
 
 namespace Tgs.GameRecord.Evolution.Core.ApplicationServices;
 
 internal class HandleRecordCommandService(
+	ILogger<HandleRecordCommandService> logger,
 	IOptions<GameRecordInfoOptions> options,
-	IGameRecordHandleClient client) : ICommandService<HandleRecordCommand>
+	IMessageSender messageSender) : ICommandService<HandleRecordCommand>
 {
 	private readonly GameRecordInfoOptions _gameRecordInfo = options.Value;
 
-	public ValueTask ExecuteAsync(HandleRecordCommand command, CancellationToken cancellationToken = default)
+	public async ValueTask ExecuteAsync(HandleRecordCommand command, CancellationToken cancellationToken = default)
 	{
 		var externalCreatedOn = command.Record.ExternalCreatedOn.ToDateTimeOffset();
 		var externalClosedOn = command.Record.ExternalClosedOn.ToDateTimeOffset();
@@ -22,39 +24,62 @@ internal class HandleRecordCommandService(
 		var commission = command.Record.Commission.ToDecimal().GetValueOrDefault(0);
 		var turnover = command.Record.Turnover.ToDecimal().GetValueOrDefault(0);
 		var winLoss = command.Record.WinLoss.ToDecimal().GetValueOrDefault(0);
-		var wagerState =
+		var betState =
 			command.Record.IsVoid
-			? WagerStates.Void
+			? Handle.Common.Protos.BetState.Void
 			: command.Record.IsCancelled
-			? WagerStates.Refund
+			? Handle.Common.Protos.BetState.Cancel
 			: winLoss > 0
-			? WagerStates.Win
-			: WagerStates.Lose;
+			? Handle.Common.Protos.BetState.Win
+			: Handle.Common.Protos.BetState.Loss;
 
-		return client
-			.MessageAsync(
-			gameProviderCode: _gameRecordInfo.GameProviderCode,
-			playerCode: command.Record.PlayerCode,
-			wagerState: wagerState,
-			wagerType: WagerTypes.Normal,
-			freeGameState: FreeGameStates.None,
-			gambleState: GambleStates.None,
-			cashoutState: CashoutStates.None,
-			resettleState: ResettleStates.None,
-			externalRoundId: command.Record.ExternalRoundId,
-			externalWagerId: command.Record.ExternalRoundId,
-			externalGameId: command.Record.ExternalGameId,
-			externalCreatedOn: externalCreatedOn,
-			externalClosedOn: externalClosedOn,
-			externalPayoffOn: externalClosedOn,
-			externalResettleOn: DateTimeOffset.UnixEpoch,
-			bet: bet,
-			validBet: validBet,
-			settle: settle,
-			commission: commission,
-			turnover: turnover,
-			winLoss: winLoss,
-			additionalData: JsonNode.Parse(command.Record.AdditionalData)!,
-			cancellationToken: cancellationToken);
+		var request = new Handle.Common.Protos.GameRecordHandleRequest
+		{
+			GameProviderCode = _gameRecordInfo.GameProviderCode,
+			PlayerCode = command.Record.PlayerCode,
+			ExternalRoundId = command.Record.ExternalRoundId,
+			ExternalBetId = command.Record.ExternalRoundId,
+			ExternalGameId = command.Record.ExternalGameId,
+			ExternalCreatedOn = externalCreatedOn.ToTimestamp(),
+			ExternalClosedOn = externalClosedOn.ToTimestamp(),
+			ExternalPayoffOn = externalClosedOn.ToTimestamp(),
+			ExternalResettleOn = DateTimeOffset.UnixEpoch.ToTimestamp(),
+			BetState = betState,
+			BetType = Handle.Common.Protos.BetType.Normal,
+			FreeGameState = Handle.Common.Protos.FreeGameState.None,
+			GambleState = Handle.Common.Protos.GambleState.None,
+			CashoutState = Handle.Common.Protos.CashoutState.None,
+			ResettleState = Handle.Common.Protos.ResettleState.None,
+			JackpotState = Handle.Common.Protos.JackpotState.None,
+			Bet = bet,
+			ValidBet = validBet,
+			Settle = settle,
+			Commission = commission,
+			Turnover = turnover,
+			WinLoss = winLoss,
+			Jackpot = 0.0M,
+			AdditionalData = command.Record.AdditionalData
+		};
+
+		await messageSender.PublishAsync(
+			subject: Handle.Common.GameRecordHandleNatsConst.GameRecordHandleRequest,
+			data: request,
+			cancellationToken: cancellationToken)
+			.ConfigureAwait(false);
+
+		logger.LogInformation("LogOn:{logOn} Subject:{subject} Mesaage:This publication requests information.({request})",
+			DateTime.Now.ToString("o"),
+			Handle.Common.GameRecordHandleNatsConst.GameRecordHandleRequest,
+			new
+			{
+				request.GameProviderCode,
+				request.PlayerCode,
+				request.ExternalRoundId,
+				request.ExternalBetId,
+				request.ExternalGameId,
+				ExternalCreatedOn = request.ExternalCreatedOn.ToDateTimeOffset(),
+				ExternalClosedOn = request.ExternalClosedOn.ToDateTimeOffset(),
+				request.BetState
+			});
 	}
 }
