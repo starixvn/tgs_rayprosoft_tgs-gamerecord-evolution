@@ -17,7 +17,10 @@ internal class ScheduleMessageHandler(
 		var message = JsonSerializer.Deserialize<EvolutionGameRecordMessage>(json)
 			?? throw new NullReferenceException("The request data resolves to a null value");
 
-		logger.LogInformation("LogOn:{logOn} Information Request:{message}", DateTime.Now.ToString("o"), message);
+		logger.LogInformation("LogOn:{logOn} Subject:{subject} Information Request:{message}",
+			DateTime.Now.ToString("o"),
+			subject,
+			message);
 
 		var command = new PullRecordCommand(
 			ApiUrl: message.ApiUrl,
