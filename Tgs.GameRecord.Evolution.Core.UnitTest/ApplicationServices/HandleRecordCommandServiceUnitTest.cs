@@ -19,10 +19,10 @@ public class HandleRecordCommandServiceUnitTest
 		{
 			GameProviderCode = "EVOTF",
 			GameProviderConfiguration = "EVOTFConfiguration",
-			HangfirePrefix = "evotf-schedule:hangfire:",
-			HangfireLocking = "evotf-locking:hangfire:",
-			IntervalMinutes = 10,
-			IntervalMinutesMax = 1440,
+			HangfirePrefix = "gamerecord-evotf-hangfire:",
+			HangfireLocking = "gamerecord-evotf-locking:",
+			IntervalMinutes = 3,
+			IntervalMinutesMax = 60,
 			IntervalMinutesMinimum = 1
 		});
 		var fakeMessageSender = Substitute.For<IMessageSender>();
@@ -99,10 +99,10 @@ public class HandleRecordCommandServiceUnitTest
 		{
 			GameProviderCode = "EVOTF",
 			GameProviderConfiguration = "EVOTFConfiguration",
-			HangfirePrefix = "evotf-schedule:hangfire:",
-			HangfireLocking = "evotf-locking:hangfire:",
-			IntervalMinutes = 10,
-			IntervalMinutesMax = 1440,
+			HangfirePrefix = "gamerecord-evotf-hangfire:",
+			HangfireLocking = "gamerecord-evotf-locking:",
+			IntervalMinutes = 3,
+			IntervalMinutesMax = 60,
 			IntervalMinutesMinimum = 1
 		});
 		var fakeMessageSender = Substitute.For<IMessageSender>();
@@ -179,10 +179,10 @@ public class HandleRecordCommandServiceUnitTest
 		{
 			GameProviderCode = "EVOTF",
 			GameProviderConfiguration = "EVOTFConfiguration",
-			HangfirePrefix = "evotf-schedule:hangfire:",
-			HangfireLocking = "evotf-locking:hangfire:",
-			IntervalMinutes = 10,
-			IntervalMinutesMax = 1440,
+			HangfirePrefix = "gamerecord-evotf-hangfire:",
+			HangfireLocking = "gamerecord-evotf-locking:",
+			IntervalMinutes = 3,
+			IntervalMinutesMax = 60,
 			IntervalMinutesMinimum = 1
 		});
 		var fakeMessageSender = Substitute.For<IMessageSender>();
@@ -259,10 +259,10 @@ public class HandleRecordCommandServiceUnitTest
 		{
 			GameProviderCode = "EVOTF",
 			GameProviderConfiguration = "EVOTFConfiguration",
-			HangfirePrefix = "evotf-schedule:hangfire:",
-			HangfireLocking = "evotf-locking:hangfire:",
-			IntervalMinutes = 10,
-			IntervalMinutesMax = 1440,
+			HangfirePrefix = "gamerecord-evotf-hangfire:",
+			HangfireLocking = "gamerecord-evotf-locking:",
+			IntervalMinutes = 3,
+			IntervalMinutesMax = 60,
 			IntervalMinutesMinimum = 1
 		});
 		var fakeMessageSender = Substitute.For<IMessageSender>();
