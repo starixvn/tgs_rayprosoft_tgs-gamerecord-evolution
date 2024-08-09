@@ -13,8 +13,7 @@ internal class ManualMessageHandler(
 {
 	public ValueTask HandleAsync(string subject, ReadOnlyMemory<byte> data, IEnumerable<MessageHeaderValue>? headerValues, CancellationToken cancellationToken = default)
 	{
-		var json = Encoding.UTF8.GetString(data.Span);
-		var message = JsonSerializer.Deserialize<EvolutionGameRecordMessage>(json)
+		var message = JsonSerializer.Deserialize<EvolutionGameRecordMessage>(data.Span)
 			?? throw new NullReferenceException("The request data resolves to a null value");
 
 		logger.LogInformation("{logInformation}",

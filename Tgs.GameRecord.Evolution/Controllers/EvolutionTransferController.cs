@@ -22,7 +22,7 @@ public class EvolutionTransferController : ControllerBase
 		EvolutionGameRecordMessage source)
 		=> messageSender.PublishAsync(
 			subject: EvolutionNatsConst.ManualPublish,
-			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(source)),
+			data: JsonSerializer.SerializeToUtf8Bytes(source),
 			cancellationToken: HttpContext.RequestAborted);
 
 	/// <summary>
@@ -37,6 +37,6 @@ public class EvolutionTransferController : ControllerBase
 		EvolutionGameRecordMessage source)
 		=> messageSender.PublishAsync(
 			subject: EvolutionNatsConst.SchedulePublish,
-			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(source)),
+			data: JsonSerializer.SerializeToUtf8Bytes(source),
 			cancellationToken: HttpContext.RequestAborted);
 }
