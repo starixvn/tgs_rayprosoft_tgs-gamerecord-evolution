@@ -13,7 +13,8 @@ COPY ["nuget.config", "."]
 COPY ["Tgs.GameRecord.Evolution/Tgs.GameRecord.Evolution.csproj", "Tgs.GameRecord.Evolution/"]
 COPY ["Tgs.GameRecord.Evolution.Common/Tgs.GameRecord.Evolution.Common.csproj", "Tgs.GameRecord.Evolution.Common/"]
 COPY ["Tgs.GameRecord.Evolution.Core/Tgs.GameRecord.Evolution.Core.csproj", "Tgs.GameRecord.Evolution.Core/"]
-RUN dotnet restore "./Tgs.GameRecord.Evolution/./Tgs.GameRecord.Evolution.csproj"
+COPY ["Tgs.GameRecord.Evolution.Repositories/Tgs.GameRecord.Evolution.Repositories.csproj", "Tgs.GameRecord.Evolution.Repositories/"]
+RUN dotnet restore "./Tgs.GameRecord.Evolution/Tgs.GameRecord.Evolution.csproj"
 COPY . .
 WORKDIR "/src/Tgs.GameRecord.Evolution"
 RUN dotnet build "./Tgs.GameRecord.Evolution.csproj" -c $BUILD_CONFIGURATION -o /app/build
