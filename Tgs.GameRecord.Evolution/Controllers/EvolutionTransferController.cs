@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 using Tgs.GameRecord.Evolution.Common;
-using Tgs.GameRecord.Evolution.Core.ApplicationServices;
-using Tgs.ServiceUtility;
+using Valhalla.MessageQueue;
 
 namespace Tgs.GameRecord.Evolution.Controllers;
 
@@ -10,34 +11,32 @@ namespace Tgs.GameRecord.Evolution.Controllers;
 public class EvolutionTransferController : ControllerBase
 {
 	/// <summary>
-	/// Executes the asynchronous.
+	/// Games the record manual asynchronous.
 	/// </summary>
-	/// <param name="service">The service.</param>
+	/// <param name="messageSender">The message sender.</param>
 	/// <param name="source">The source.</param>
 	/// <returns></returns>
-	/// <remarks>
-	/// <b>Example</b><br />
-	///
-	///     Post
-	///         {
-	///             "apiUrl":"https://babylonpega2.uat1.evo-test.com/",
-	///             "casinoId":"babylonpega20001",
-	///             "gameHistoryApiToken":"test123",
-	///             "startTime": "2022-09-07T18:50:00+08:00",
-	///             "endTime": "2022-09-07T18:55:00+08:00"
-	///         }
-	/// </remarks>
-	[HttpPost]
-	public ValueTask ExecuteAsync(
-		[FromServices] ICommandService<PullRecordCommand> service,
+	[HttpPost("manual")]
+	public ValueTask GameRecordManualAsync(
+		[FromServices] IMessageSender messageSender,
 		EvolutionGameRecordMessage source)
-		=> service
-		.ExecuteAsync(
-			command: new PullRecordCommand(
-				source.ApiUrl,
-				source.CasinoId,
-				source.GameHistoryApiToken,
-				source.StartTime,
-				source.EndTime),
+		=> messageSender.PublishAsync(
+			subject: EvolutionNatsConst.ManualPublish,
+			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(source)),
+			cancellationToken: HttpContext.RequestAborted);
+
+	/// <summary>
+	/// Games the record schedule asynchronous.
+	/// </summary>
+	/// <param name="messageSender">The message sender.</param>
+	/// <param name="source">The source.</param>
+	/// <returns></returns>
+	[HttpPost("schedule")]
+	public ValueTask GameRecordScheduleAsync(
+		[FromServices] IMessageSender messageSender,
+		EvolutionGameRecordMessage source)
+		=> messageSender.PublishAsync(
+			subject: EvolutionNatsConst.SchedulePublish,
+			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(source)),
 			cancellationToken: HttpContext.RequestAborted);
 }

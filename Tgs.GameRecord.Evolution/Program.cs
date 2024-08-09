@@ -66,27 +66,36 @@ builder.Services.AddHangfire(
 	})
 	.AddHangfireServer();
 
-builder.Services.AddGameRecord(
-	(options, sp) =>
+builder.Services
+	.AddOptions<RedisOptions>()
+	.Configure((RedisOptions options, IServiceProvider sp) =>
 	{
 		var configuration = sp.GetRequiredService<IConfiguration>();
 		options.ConnectionString = configuration.GetConnectionString("Redis")!;
-	},
-	(options, sp) =>
+	})
+	.Services
+	.AddOptions<GameRecordInfoOptions>()
+	.Configure((GameRecordInfoOptions options, IServiceProvider sp) =>
 	{
 		var configuration = sp.GetRequiredService<IConfiguration>();
 		configuration.GetSection("GameRecordInfo").Bind(options);
-	},
-	(options, sp) =>
+	})
+	.Services
+	.AddSingleton(TimeProvider.System)
+	.AddSingleton<RedisConnectionManager>()
+	.AddGameCommandClient((options, sp) =>
 	{
 		var configuration = sp.GetRequiredService<IConfiguration>();
 		options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameCommandClientBaseUrl")!;
-	},
-	(options, sp) =>
+	})
+	.AddGameInterfaceEvoClient((options, sp) =>
 	{
 		var configuration = sp.GetRequiredService<IConfiguration>();
 		options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameInterfaceClientBaseUrl")!;
-	});
+	})
+	.AddGameRecordCore()
+	.AddGameRecordRepository(
+	redisDatabaseResolver: (sp) => sp.GetRequiredService<RedisConnectionManager>().Database);
 
 builder.Services
 	.AddKeyedSingleton("Nats", (sp, _) => new NatsConnection(NatsOpts.Default with
@@ -146,10 +155,9 @@ app.UseHangfireDashboard(
 	new DashboardOptions()
 	{
 		Authorization =
-		new[]
-		{
+		[
 			new IgnoreHangfireAuthorizationFilter()
-		}
+		]
 	});
 
 _ = app.UseAuthorization();

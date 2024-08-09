@@ -1,6 +1,6 @@
 ﻿namespace Tgs.GameRecord.Evolution.Core;
 
-public interface IHangfireLock
+public interface IHangfireLockRepository
 {
 	public Task<bool> LockingAsync(string application, CancellationToken cancellationToken = default);
 }
