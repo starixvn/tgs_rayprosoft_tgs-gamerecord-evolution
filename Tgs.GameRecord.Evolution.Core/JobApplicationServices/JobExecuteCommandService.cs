@@ -8,34 +8,20 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.GameRecord.Evolution.Core.JobApplicationServices;
 
-internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
-{
-	private readonly GameRecordInfoOptions _gameRecordInfo;
-	private readonly double _intervalMinutes;
-	private readonly ILogger<JobExecuteCommandService> _logger;
-	private readonly TimeProvider _timeProvider;
-	private readonly IMessageSender _messageSender;
-
-	public JobExecuteCommandService(
+internal class JobExecuteCommandService(
 		ILogger<JobExecuteCommandService> logger,
 		IOptions<GameRecordInfoOptions> options,
 		TimeProvider timeProvider,
-		IMessageSender messageSender)
-	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-		_timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-		_messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-		_gameRecordInfo = options.Value;
-		_intervalMinutes = _gameRecordInfo.IntervalMinutesMax < _gameRecordInfo.IntervalMinutes
-			? _gameRecordInfo.IntervalMinutesMax
-			: _gameRecordInfo.IntervalMinutesMinimum > _gameRecordInfo.IntervalMinutes
-			? _gameRecordInfo.IntervalMinutesMinimum
-			: _gameRecordInfo.IntervalMinutes;
-	}
+		IMessageSender messageSender) : ICommandService<JobExecuteCommand>
+{
+	private readonly double _intervalMinutes = Math.Clamp(
+		value: options.Value.IntervalMinutes,
+		min: options.Value.IntervalMinutesMinimum,
+		max: options.Value.IntervalMinutesMax);
 
 	public ValueTask ExecuteAsync(JobExecuteCommand command, CancellationToken cancellationToken = default)
 	{
-		var currentTime = _timeProvider.GetUtcNow();
+		var currentTime = timeProvider.GetUtcNow();
 		var endTime = new DateTimeOffset(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour, currentTime.Minute, 00, currentTime.Offset);
 		var startTime = endTime.AddMinutes(_intervalMinutes * -1);
 
@@ -48,12 +34,12 @@ internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
 			EndTime = endTime
 		};
 
-		_logger.LogInformation("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
+		logger.LogInformation("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
 
-		return _messageSender
+		return messageSender
 			.PublishAsync(
 			subject: EvolutionNatsConst.SchedulePublish,
-			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parameters)),
+			data: JsonSerializer.SerializeToUtf8Bytes(parameters),
 			cancellationToken: cancellationToken);
 	}
 }
