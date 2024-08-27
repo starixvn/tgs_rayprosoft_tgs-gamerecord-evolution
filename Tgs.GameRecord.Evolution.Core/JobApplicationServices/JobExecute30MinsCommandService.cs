@@ -54,7 +54,7 @@ internal class JobExecute30MinsCommandService : ICommandService<JobExecute30Mins
 		return _messageSender
 			.PublishAsync(
 			subject: EvolutionNatsConst.ScheduleMinsPublish,
-			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parameters)),
+			data: JsonSerializer.SerializeToUtf8Bytes(parameters),
 			cancellationToken: cancellationToken);
 	}
 }

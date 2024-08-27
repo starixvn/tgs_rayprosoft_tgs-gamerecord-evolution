@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Tgs.GameRecord.Evolution.Common;
 using Tgs.GameRecord.Evolution.Core;
 using Tgs.GameRecord.Evolution.Core.ApplicationServices;
