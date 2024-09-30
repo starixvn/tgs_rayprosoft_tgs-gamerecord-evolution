@@ -79,12 +79,13 @@ internal class JobInitCommandService(
 				cronExpression: Cron.Minutely(),
 				options: _recurringJobOptions);
 
+			/*
 			RecurringJob.AddOrUpdate<IHangfireUtensilRepository>(
 				recurringJobId: string.Concat(_gameRecordInfo.GameProviderConfiguration, "|30Mins"),
 				methodCall: service => service.JobExecute30MinsAsync(jobExecute30MinsCommand),
 				cronExpression: Cron.Minutely(),
 				options: _recurringJobOptions);
-
+			*/
 			//初始化強制第一次處理
 			_ = BackgroundJob.Enqueue<IHangfireUtensilRepository>(service => service.JobExecuteAsync(jobExecuteCommand));
 		}
